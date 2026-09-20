@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ScholarX 管理后台 · 运维中枢原型</title>
+  <style>
+    :root {
+      --bg: #f3f7f4;
+      --surface: #ffffff;
+      --surface-2: #f8fbf9;
+      --ink: #1c2b26;
+      --muted: #6b7f77;
+      --line: #d7e3dc;
+      --green: #1b4332;
+      --green-2: #2d6a4f;
+      --green-soft: #e7f2ec;
+      --ok: #1f7a4c;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --chip: #eef5f1;
+      --shadow: 0 1px 2px rgba(27,67,50,.06), 0 8px 24px rgba(27,67,50,.06);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      color: var(--ink); background: var(--bg);
+    }
+    .app { display: flex; min-height: 100vh; }
+    .side {
+      width: 220px; flex: 0 0 220px; background: var(--green); color: #e8f5ef;
+      padding: 18px 12px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .brand { padding: 8px 10px 16px; border-bottom: 1px solid rgba(255,255,255,.15); margin-bottom: 10px; }
+    .brand h1 { margin: 0; font-size: 16px; font-weight: 650; color: #fff; }
+    .brand p { margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: rgba(255,255,255,.72); }
+    .nav-btn {
+      appearance: none; border: 1px solid transparent; background: transparent;
+      color: rgba(255,255,255,.78); text-align: left; padding: 9px 12px;
+      border-radius: 8px; font-size: 13px; cursor: pointer; width: 100%;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-btn.active { background: #fff; color: var(--green); font-weight: 650; }
+    .nav-sep { margin: 8px 10px 4px; font-size: 11px; color: rgba(255,255,255,.45); letter-spacing: .04em; }
+    .side-foot {
+      margin-top: auto; padding: 12px 10px 0; border-top: 1px solid rgba(255,255,255,.15);
+      font-size: 11px; color: rgba(255,255,255,.65); line-height: 1.55;
+    }
+    .side-foot code { color: #b7e4cf; }
+
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .top {
+      display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
+      padding: 16px 22px; background: var(--surface); border-bottom: 1px solid var(--line);
+    }
+    .top h2 { margin: 0; font-size: 18px; font-weight: 650; color: var(--green); }
+    .top .desc { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .live {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
+      border-radius: 999px; border: 1px solid var(--line); background: var(--green-soft);
+      font-size: 12px; color: var(--green-2); font-weight: 600;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--ok);
+      box-shadow: 0 0 0 3px rgba(31,122,76,.15); animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { opacity: .45; transform: scale(.9); } }
+
+    .content { padding: 20px 22px 40px; display: grid; gap: 16px; }
+    .page { display: none; }
+    .page.show { display: grid; gap: 16px; }
+
+    .grid-4 { display: grid; gap: 14px; grid-template-columns: repeat(4, 1fr); }
+    .grid-3 { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); }
+    .grid-2 { display: grid; gap: 14px; grid-template-columns: 1.25fr 1fr; }
+    @media (max-width: 1000px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .side { width: 180px; flex-basis: 180px; }
+    }
+    @media (max-width: 640px) {
+      .app { flex-direction: column; }
+      .side { width: 100%; flex-basis: auto; }
+      .grid-4, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 12px; padding: 16px; box-shadow: var(--shadow);
+    }
+    .card h3 { margin: 0 0 4px; font-size: 14px; font-weight: 650; color: var(--green); }
+    .meta { color: var(--muted); font-size: 12px; margin-bottom: 12px; line-height: 1.45; }
+    .metric { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .metric small { font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 6px; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .tag {
+      font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line);
+      color: var(--muted); background: var(--chip); white-space: nowrap;
+    }
+    .tag.ok { color: var(--ok); border-color: #b7dfc7; background: #e8f7ef; }
+    .tag.warn { color: var(--warn); border-color: #fcd9a8; background: #fff7ed; }
+    .tag.bad { color: var(--bad); border-color: #f5c2c2; background: #fef2f2; }
+    .tag.green { color: var(--green); border-color: #b7d6c7; background: var(--green-soft); }
+
+    .list { display: grid; gap: 10px; }
+    .item {
+      display: grid; gap: 10px; align-items: center;
+      background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+    }
+    .item.c4 { grid-template-columns: 1.4fr .9fr .9fr auto; }
+    .item.c3 { grid-template-columns: 1.4fr 1fr auto; }
+    .item.c5 { grid-template-columns: 1.3fr .8fr .8fr .8fr auto; }
+    @media (max-width: 860px) {
+      .item.c4, .item.c3, .item.c5 { grid-template-columns: 1fr 1fr; }
+    }
+    .name { font-size: 13px; font-weight: 650; }
+    .name span { display: block; color: var(--muted); font-size: 11px; font-weight: 400; margin-top: 2px; }
+    .sub { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 500; font-size: 12px; }
+    td { font-variant-numeric: tabular-nums; }
+
+    .pipe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    @media (max-width: 900px) { .pipe { grid-template-columns: repeat(2, 1fr); } }
+    .pipe-step {
+      background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+    }
+    .pipe-step .idx {
+      width: 22px; height: 22px; border-radius: 50%; background: var(--green); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 12px; margin-bottom: 8px;
+    }
+    .pipe-step h4 { margin: 0 0 4px; font-size: 13px; color: var(--green); }
+    .pipe-step p { margin: 0 0 8px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+    .stat-box {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+      padding: 8px 6px; text-align: center;
+    }
+    .stat-box b { display: block; font-size: 16px; color: var(--ink); }
+    .stat-box span { font-size: 11px; color: var(--muted); }
+
+    .map-box {
+      background: var(--green-soft); border: 1px solid #c5dfd2; border-radius: 12px;
+      padding: 14px 16px; font-size: 12px; line-height: 1.7;
+    }
+    .map-box strong { color: var(--green); }
+
+    .bar-wrap { margin-top: 8px; }
+    .bar { height: 8px; background: #e5eee9; border-radius: 999px; overflow: hidden; }
+    .bar > i {
+      display: block; height: 100%; width: 0; border-radius: inherit;
+      background: linear-gradient(90deg, var(--green-2), #52b788); transition: width .35s ease;
+    }
+    .bar.thin > i.warnbg { background: linear-gradient(90deg, #d97706, #fbbf24); }
+    .bar.thin > i.badbg { background: linear-gradient(90deg, #b91c1c, #f87171); }
+
+    .param-card h3 { margin-bottom: 4px; }
+    .param-card > p { margin: 0 0 14px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 13px; margin-bottom: 6px; }
+    .val { float: right; color: var(--green-2); font-weight: 650; font-variant-numeric: tabular-nums; }
+    input[type="range"] { width: 100%; accent-color: var(--green-2); }
+    .switch-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 0; border-top: 1px dashed var(--line);
+    }
+    .switch {
+      width: 44px; height: 24px; border-radius: 999px; border: 1px solid var(--line);
+      background: #e5eee9; position: relative; cursor: pointer; flex: 0 0 auto;
+    }
+    .switch::after {
+      content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+      border-radius: 50%; background: #9bb0a6; transition: .2s;
+    }
+    .switch.on { background: var(--green-soft); border-color: var(--green-2); }
+    .switch.on::after { left: 22px; background: var(--green-2); }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    button.primary, button.ghost, button.sm {
+      padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 650; cursor: pointer;
+    }
+    button.primary { border: 1px solid var(--green); background: var(--green); color: #fff; }
+    button.primary:hover { background: var(--green-2); border-color: var(--green-2); }
+    button.ghost, button.sm {
+      border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+    }
+    button.ghost:hover, button.sm:hover { color: var(--ink); border-color: #b7cfc3; }
+    button.sm { padding: 6px 10px; font-size: 12px; font-weight: 600; }
+    .toast { margin-top: 10px; font-size: 12px; color: var(--muted); min-height: 18px; line-height: 1.5; }
+
+    .log {
+      background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+      padding: 12px 14px; font-family: Consolas, monospace; font-size: 12px;
+      color: #33443c; max-height: 280px; overflow: auto; line-height: 1.7;
+    }
+    .log .t { color: var(--muted); }
+    .log .ok { color: var(--ok); }
+    .log .warn { color: var(--warn); }
+    .log .bad { color: var(--bad); }
+    .log .accent { color: var(--green-2); }
+
+    .ab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 800px) { .ab-grid { grid-template-columns: 1fr; } }
+    .ab-card {
+      border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--surface-2);
+    }
+    .ab-card.new { border-color: rgba(45,110,79,.45); background: var(--green-soft); }
+    .ab-card h4 { margin: 0 0 4px; font-size: 14px; color: var(--green); }
+    .delta-ok { color: var(--ok); font-weight: 650; }
+    .delta-bad { color: var(--bad); font-weight: 650; }
+
+    .radar-row { display: grid; grid-template-columns: 120px 1fr 70px 70px; gap: 8px; align-items: center; margin-bottom: 10px; }
+    @media (max-width: 700px) { .radar-row { grid-template-columns: 100px 1fr 60px; } .radar-row .hide-sm { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>ScholarX 管理后台</h1>
+        <p>科研运维中枢 · 方案 A<br />白色为主 / 墨绿点缀</p>
+      </div>
+      <button class="nav-btn active" data-page="overview">总览</button>
+      <div class="nav-sep">运维五层</div>
+      <button class="nav-btn" data-page="pipeline">1 科研流水线</button>
+      <button class="nav-btn" data-page="agents">2 多智能体</button>
+      <button class="nav-btn" data-page="hosts">3 算力与主机</button>
+      <button class="nav-btn" data-page="cost">4 模型与成本</button>
+      <button class="nav-btn" data-page="quality">5 质量闸门</button>
+      <div class="nav-sep">方案 A 创新</div>
+      <button class="nav-btn" data-page="expab">经验 A/B 驾驶舱</button>
+      <button class="nav-btn" data-page="radar">证据缺口雷达</button>
+      <div class="nav-sep">控制</div>
+      <button class="nav-btn" data-page="params">参数控制</button>
+      <button class="nav-btn" data-page="logs">操作日志</button>
+      <div class="side-foot">
+        分支：<code>feature/ops-console-time1936</code><br />
+        Mock · 未接生产 API
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="top">
+        <div>
+          <h2 id="page-title">总览</h2>
+          <p class="desc" id="page-desc">五层科研运维 + 经验 A/B + 证据雷达</p>
+        </div>
+        <div class="live"><span class="dot"></span>实时 · <span id="clock">--:--:--</span></div>
+      </div>
+
+      <div class="content">
+        <!-- 总览 -->
+        <section class="page show" id="page-overview">
+          <div class="map-box">
+            <strong>本原型相对上一版的升级：</strong>
+            ① 细化运维五层（流水线积压/失败/重试、智能体 token/卡住、主机显存队列、Provider 成本、质量闸门）
+            ② 落地方案 A：经验 A/B 驾驶舱 + 证据缺口雷达。每个模块都能在联调时对接 Cloud API 真实字段。
+          </div>
+          <div class="grid-4">
+            <div class="card">
+              <h3>流水线总积压</h3>
+              <div class="meta">四环节排队 + 失败待重试</div>
+              <div class="metric" id="m-backlog">—</div>
+              <div class="row"><span class="tag warn" id="m-backlog-tag">watch</span><span class="meta" id="asof1">as_of —</span></div>
+            </div>
+            <div class="card">
+              <h3>运行中 Agent</h3>
+              <div class="meta">五角色 · 含卡住检测</div>
+              <div class="metric" id="m-agents">—<small>个</small></div>
+              <div class="row"><span class="tag ok" id="m-agent-tag">orchestrated</span><span class="meta">token 见第2层</span></div>
+            </div>
+            <div class="card">
+              <h3>今日模型费用</h3>
+              <div class="meta">多 Provider 汇总 · provisional</div>
+              <div class="metric" id="m-cost">—<small>元</small></div>
+              <div class="row"><span class="tag green" id="m-cost-tag">under budget</span><span class="meta" id="m-budget-left">预算剩余 —</span></div>
+            </div>
+            <div class="card">
+              <h3>质量 / 证据健康</h3>
+              <div class="meta">闸门通过率 × 溯源完整率</div>
+              <div class="metric" id="m-qscore">—<small>/100</small></div>
+              <div class="bar-wrap"><div class="bar"><i id="m-qbar"></i></div></div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <h3>五层告警速览</h3>
+              <div class="meta">只显示需要人处理的项；正常项收起</div>
+              <div class="list" id="alert-list"></div>
+            </div>
+            <div class="card">
+              <h3>精确熔断状态</h3>
+              <div class="meta">按科研动作熔断，不整站关停</div>
+              <div class="list" id="breaker-list"></div>
+              <div class="toast">完整操作见「参数控制」。</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 1 流水线 -->
+        <section class="page" id="page-pipeline">
+          <div class="card">
+            <h3>① 科研流水线 · 积压 / 失败 / 重试</h3>
+            <div class="meta">文献 → 证据 → 分析 → 写作；对应产品四类资产（文献库/证据图谱/分析图表/综述）</div>
+            <div class="pipe" id="pipe-cards"></div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <h3>失败与重试队列</h3>
+              <div class="meta">失败任务可单条重试；连续失败自动熔断该技能</div>
+              <table>
+                <thead><tr><th>任务</th><th>环节</th><th>错误</th><th>重试</th><th>操作</th></tr></thead>
+                <tbody id="fail-tbody"></tbody>
+              </table>
+            </div>
+            <div class="card">
+              <h3>环节吞吐（今日）</h3>
+              <div class="meta">成功 / 失败 / 平均耗时</div>
+              <div class="list" id="throughput-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2 多智能体 -->
+        <section class="page" id="page-agents">
+          <div class="card">
+            <h3>② 多智能体 · 耗时 / Token / 卡住</h3>
+            <div class="meta">
+              角色对齐产品架构：Planner / Source Manager / Screener / Evidence Agent / Writer。
+              「卡住」= 超过阈值仍无输出；可手动介入或取消。
+            </div>
+            <div class="list" id="agent-list"></div>
+          </div>
+          <div class="grid-3">
+            <div class="card">
+              <h3>今日 Token 总量</h3>
+              <div class="meta">input + output</div>
+              <div class="metric" id="m-tokens">—</div>
+              <div class="row"><span class="tag green">metered</span><span class="meta">网关计量</span></div>
+            </div>
+            <div class="card">
+              <h3>平均单任务耗时</h3>
+              <div class="meta">从 Planner 接单到 Writer 交付</div>
+              <div class="metric" id="m-taskdur">—<small>min</small></div>
+              <div class="row"><span class="tag ok">observed</span><span class="meta">滚动 24h</span></div>
+            </div>
+            <div class="card">
+              <h3>卡住 / 等待人</h3>
+              <div class="meta">stuck + HIL pending</div>
+              <div class="metric" id="m-stuck">—</div>
+              <div class="row"><span class="tag warn" id="m-stuck-tag">attention</span><span class="meta">可到流水线处理</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3 主机 -->
+        <section class="page" id="page-hosts">
+          <div class="card">
+            <h3>③ 算力与主机 · 在线 / 显存 / 队列</h3>
+            <div class="meta">参考 ClawsGO Host Management / Wisp SSH 主机注册。可摘除调度，不在此直接 SSH 登录生产。</div>
+            <div class="list" id="host-list"></div>
+          </div>
+          <div class="grid-3">
+            <div class="card">
+              <h3>在线主机</h3>
+              <div class="metric" id="m-hosts-up">—<small>/ —</small></div>
+              <div class="row"><span class="tag ok">fleet</span><span class="meta">本地+SSH+GPU</span></div>
+            </div>
+            <div class="card">
+              <h3>GPU 显存占用</h3>
+              <div class="metric" id="m-vram">—<small>%</small></div>
+              <div class="bar-wrap"><div class="bar"><i id="m-vram-bar"></i></div></div>
+            </div>
+            <div class="card">
+              <h3>作业排队</h3>
+              <div class="metric" id="m-queue">—<small>jobs</small></div>
+              <div class="row"><span class="tag warn" id="m-queue-tag">queue</span><span class="meta">优先级可调整</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4 成本 -->
+        <section class="page" id="page-cost">
+          <div class="card">
+            <h3>④ 模型与成本 · Provider / 日预算 / 单任务费用</h3>
+            <div class="meta">参考 EvoScientist 多 Provider 与 ClawsGO 智能计费。后台只读聚合 + 受控调预算。</div>
+            <table>
+              <thead><tr><th>Provider / 模型</th><th>今日调用</th><th>Token</th><th>费用(元)</th><th>状态</th></tr></thead>
+              <tbody id="provider-tbody"></tbody>
+            </table>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <h3>日预算执行</h3>
+              <div class="meta">超 80% 告警；达 100% 可选熔断低优先级任务</div>
+              <div class="metric" id="m-budget-use">—<small>%</small></div>
+              <div class="bar-wrap"><div class="bar thin"><i id="m-budget-bar"></i></div></div>
+              <div class="toast" id="budget-toast">预算策略见参数控制。</div>
+            </div>
+            <div class="card">
+              <h3>单任务费用 Top</h3>
+              <div class="meta">定位「烧钱任务」，便于优化技能路由</div>
+              <div class="list" id="cost-top-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5 质量闸门 -->
+        <section class="page" id="page-quality">
+          <div class="map-box">
+            <strong>⑤ 质量闸门</strong> 参考 aipoch Reviewer（pass/warning/failure）+ 证据核验队列 + 引用 DOI 解析。
+            原则：可追溯 ≠ 自动正确；后台展示闸门结果，不代替专家审稿。
+          </div>
+          <div class="grid-3">
+            <div class="card">
+              <h3>Reviewer 通过率</h3>
+              <div class="meta">pass / warning / failure</div>
+              <div class="metric" id="m-rev-pass">—<small>%</small></div>
+              <div class="row"><span class="tag ok" id="m-rev-tag">gate</span><span class="meta" id="m-rev-breakdown">—</span></div>
+            </div>
+            <div class="card">
+              <h3>证据核验队列</h3>
+              <div class="meta">待人工/自动核验证据卡</div>
+              <div class="metric" id="m-evi-q">—<small>条</small></div>
+              <div class="row"><span class="tag warn">pending</span><span class="meta">可批量抽样核验</span></div>
+            </div>
+            <div class="card">
+              <h3>DOI / 引用解析率</h3>
+              <div class="meta">引用可解析占比 · 缺失需补</div>
+              <div class="metric" id="m-doi">—<small>%</small></div>
+              <div class="bar-wrap"><div class="bar"><i id="m-doi-bar"></i></div></div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <h3>闸门事件（最近）</h3>
+              <div class="meta">failure 可一键打回 Writer / 人工复核</div>
+              <div class="list" id="gate-list"></div>
+            </div>
+            <div class="card">
+              <h3>闸门策略</h3>
+              <div class="meta">受控开关；关闭需审计理由</div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">产物强制过 Reviewer</div><div class="meta">gate.reviewer_required</div></div>
+                <div class="switch on" data-flag="reviewer_required" data-label="强制Reviewer"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">引用必须可解析 DOI</div><div class="meta">gate.doi_required</div></div>
+                <div class="switch on" data-flag="doi_required" data-label="强制DOI"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">failure 自动打回重写</div><div class="meta">gate.auto_rewrite</div></div>
+                <div class="switch" data-flag="auto_rewrite" data-label="自动打回"></div>
+              </div>
+              <div class="toast" id="toast-gate">关闭高风险闸门将记入审计。</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 经验 A/B -->
+        <section class="page" id="page-expab">
+          <div class="map-box">
+            <strong>方案 A · 经验 A/B 驾驶舱</strong>
+            把「有界自进化」从审核按钮变成可运营资产：新旧经验同任务对比 → 灰度 → 效果验证 → 变差自动回退。
+            对齐产品汇报口径：工具调用 8.21→3.89、费用下降等，但标注「初测，待扩样」。
+          </div>
+          <div class="card">
+            <h3>进行中的经验实验</h3>
+            <div class="meta">同一任务类型，旧经验 vs 新经验并行采样</div>
+            <div class="ab-grid" id="ab-live"></div>
+          </div>
+          <div class="card">
+            <h3>经验实验台账</h3>
+            <div class="meta">可灰度、可回滚；禁止未经对照直接全量</div>
+            <table>
+              <thead>
+                <tr><th>实验</th><th>状态</th><th>灰度</th><th>工具调用</th><th>费用</th><th>操作</th></tr>
+              </thead>
+              <tbody id="ab-tbody"></tbody>
+            </table>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <h3>六步治理进度</h3>
+              <div class="meta">候选 → 人工确认 → 复用 → 效果验证</div>
+              <div class="list" id="exp-steps"></div>
+            </div>
+            <div class="card">
+              <h3>回退与熔断策略</h3>
+              <div class="meta">效果变差自动停用，无需等人工刷列表</div>
+              <div class="field">
+                <label>自动回退阈值：相对旧经验费用上浮 <span class="val" id="v-abth">20%</span></label>
+                <input type="range" id="p-abth" min="5" max="50" step="5" value="20" />
+              </div>
+              <div class="field">
+                <label>最小对照样本 <span class="val" id="v-absample">30</span></label>
+                <input type="range" id="p-absample" min="10" max="100" step="10" value="30" />
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">效果变差自动停用新经验</div><div class="meta">experience.auto_rollback</div></div>
+                <div class="switch on" data-flag="auto_rollback" data-label="自动回退"></div>
+              </div>
+              <div class="toast" id="toast-ab">样本不足时显示「未验证」，不得宣称已改善。</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 证据雷达 -->
+        <section class="page" id="page-radar">
+          <div class="map-box">
+            <strong>方案 A · 证据缺口雷达</strong>
+            把「可信证据」做成运营 KPI：每个项目的溯源完整率、无 DOI 引用、未解决依赖、「部分完成」产物。
+            红黄绿灯下钻到具体缺口，而不是只报一个总分。
+          </div>
+          <div class="grid-4">
+            <div class="card">
+              <h3>全局溯源完整率</h3>
+              <div class="metric" id="m-trace">—<small>%</small></div>
+              <div class="row"><span class="tag green">evidence linked</span><span class="meta">产物→来源</span></div>
+            </div>
+            <div class="card">
+              <h3>无 DOI 引用</h3>
+              <div class="metric" id="m-nodoi">—<small>条</small></div>
+              <div class="row"><span class="tag warn">gap</span><span class="meta">需补解析</span></div>
+            </div>
+            <div class="card">
+              <h3>未解决依赖</h3>
+              <div class="metric" id="m-dep">—<small>项</small></div>
+              <div class="row"><span class="tag warn">open</span><span class="meta">界面曾标 partial</span></div>
+            </div>
+            <div class="card">
+              <h3>部分完成产物</h3>
+              <div class="metric" id="m-partial">—<small>个</small></div>
+              <div class="row"><span class="tag bad">partial</span><span class="meta">不得当完成汇报</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>项目证据健康矩阵</h3>
+            <div class="meta">条形 = 溯源完整率；右侧缺口计数可点击记录处理</div>
+            <div id="radar-rows"></div>
+          </div>
+          <div class="card">
+            <h3>Top 缺口清单</h3>
+            <div class="meta">后台负责「发现 + 派单」，学术结论仍由研究者确认</div>
+            <div class="list" id="gap-list"></div>
+          </div>
+        </section>
+
+        <!-- 参数 -->
+        <section class="page" id="page-params">
+          <div class="grid-2">
+            <div class="card param-card">
+              <h3>调度与成本参数</h3>
+              <p>影响流水线并发、智能体上限、模型预算与熔断策略。</p>
+              <div class="field">
+                <label>流水线并发 <span class="val" id="v-pconc">3</span></label>
+                <input type="range" id="p-pconc" min="1" max="12" step="1" value="3" />
+              </div>
+              <div class="field">
+                <label>Agent 并发上限 <span class="val" id="v-aconc">5</span></label>
+                <input type="range" id="p-aconc" min="1" max="20" step="1" value="5" />
+              </div>
+              <div class="field">
+                <label>LLM 日预算 <span class="val" id="v-budget">500</span></label>
+                <input type="range" id="p-budget" min="50" max="2000" step="50" value="500" />
+                <div class="meta" style="margin:4px 0 0">单位：元 · 超 80% 告警</div>
+              </div>
+              <div class="field">
+                <label>Agent 卡住判定（分钟） <span class="val" id="v-stuck">8</span></label>
+                <input type="range" id="p-stuck" min="3" max="30" step="1" value="8" />
+              </div>
+              <div class="actions">
+                <button class="primary" id="btn-apply">提交参数（原型）</button>
+                <button class="ghost" id="btn-reset">恢复默认</button>
+              </div>
+              <div class="toast" id="toast-params">正式环境走受控命令 + 审计，不直改库。</div>
+            </div>
+            <div class="card param-card">
+              <h3>精确熔断 / 功能开关</h3>
+              <p>按科研动作熔断；与总览「熔断状态」联动。</p>
+              <div class="switch-row">
+                <div><div style="font-size:13px">文献递归筛选</div><div class="meta">pipeline.literature</div></div>
+                <div class="switch on" data-flag="pipe_literature" data-label="文献筛选"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">证据图谱构建</div><div class="meta">pipeline.evidence</div></div>
+                <div class="switch on" data-flag="pipe_evidence" data-label="证据图谱"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">数据分析与绘图</div><div class="meta">pipeline.analysis</div></div>
+                <div class="switch on" data-flag="pipe_analysis" data-label="数据分析"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">综述写作</div><div class="meta">pipeline.writing</div></div>
+                <div class="switch on" data-flag="pipe_writing" data-label="综述写作"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">GPU 主机参与调度</div><div class="meta">host.gpu_scheduling</div></div>
+                <div class="switch on" data-flag="gpu_scheduling" data-label="GPU调度"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">低优先级任务（超预算后停）</div><div class="meta">cost.throttle_low_priority</div></div>
+                <div class="switch on" data-flag="throttle_low" data-label="费用节流"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">经验自动确认</div><div class="meta">experience.auto_confirm · 建议关闭</div></div>
+                <div class="switch" data-flag="exp_auto_confirm" data-label="经验自动确认"></div>
+              </div>
+              <div class="switch-row">
+                <div><div style="font-size:13px">云同步联调模式</div><div class="meta">cloud.sync_mode</div></div>
+                <div class="switch" data-flag="cloud_sync" data-label="云联调"></div>
+              </div>
+              <div class="toast" id="toast-flags">开关状态同步到总览熔断看板。</div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>后台模块 ↔ 产品对接表</h3>
+            <table>
+              <thead><tr><th>后台模块</th><th>对接对象</th><th>读 / 控</th></tr></thead>
+              <tbody>
+                <tr><td>① 科研流水线</td><td>文献库/证据/分析/写作任务表</td><td>读积压失败重试；启停环节；单条重试</td></tr>
+                <tr><td>② 多智能体</td><td>Planner/Source/Screener/Evidence/Writer</td><td>读耗时 token stuck；取消/介入卡住任务</td></tr>
+                <tr><td>③ 算力主机</td><td>本地 / SSH / GPU 机队</td><td>读在线显存队列；摘除调度</td></tr>
+                <tr><td>④ 模型成本</td><td>LLM 网关计量 / Provider</td><td>读调用与费用；调日预算与节流</td></tr>
+                <tr><td>⑤ 质量闸门</td><td>Reviewer / 证据核验 / DOI</td><td>读队列通过率；开关闸门策略</td></tr>
+                <tr><td>经验 A/B</td><td>有界自进化经验库</td><td>读实验指标；灰度/回滚；禁自动确认</td></tr>
+                <tr><td>证据雷达</td><td>证据卡—来源—产物关联</td><td>读缺口 KPI；派单处理清单</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 日志 -->
+        <section class="page" id="page-logs">
+          <div class="card">
+            <h3>操作日志（本地原型）</h3>
+            <div class="meta">重试、熔断、闸门开关、经验灰度/回滚、参数提交均入账</div>
+            <div class="log" id="log-box"><div><span class="t">[--:--:--]</span> 运维中枢原型已启动…</div></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const titles = {
+      overview: ["总览", "五层科研运维 + 经验 A/B + 证据雷达"],
+      pipeline: ["① 科研流水线", "文献→证据→分析→写作 · 积压/失败/重试"],
+      agents: ["② 多智能体", "Planner/Source/Screener/Evidence/Writer · 耗时/token/卡住"],
+      hosts: ["③ 算力与主机", "本地 / SSH / GPU · 在线/显存/队列"],
+      cost: ["④ 模型与成本", "Provider 调用 · 日预算 · 单任务费用"],
+      quality: ["⑤ 质量闸门", "Reviewer · 证据核验 · DOI 解析率"],
+      expab: ["经验 A/B 驾驶舱", "方案 A：灰度对照 · 自动回退 · 效果验证"],
+      radar: ["证据缺口雷达", "方案 A：溯源完整率 · 缺口派单"],
+      params: ["参数控制", "调度/成本参数 + 精确熔断"],
+      logs: ["操作日志", "本地审计示意"],
+    };
+
+    const state = {
+      tokens: 1284000,
+      taskMin: 14.2,
+      budget: 500,
+      costToday: 186.4,
+      stuckThMin: 8,
+      pipelineConc: 3,
+      agentConc: 5,
+      abTh: 20,
+      abSample: 30,
+      flags: {
+        pipe_literature: true, pipe_evidence: true, pipe_analysis: true, pipe_writing: true,
+        gpu_scheduling: true, throttle_low: true, exp_auto_confirm: false, cloud_sync: false,
+        reviewer_required: true, doi_required: true, auto_rewrite: false, auto_rollback: true,
+      },
+    };
+    const defaults = {
+      budget: 500, stuckThMin: 8, pipelineConc: 3, agentConc: 5, abTh: 20, abSample: 30,
+    };
+
+    const pipeline = [
+      { id: "lit", name: "文献递归筛选", asset: "文献库", queue: 12, running: 3, fail: 2, retry: 1, avgMin: 18, ok: 36 },
+      { id: "evi", name: "证据关系组织", asset: "证据图谱", queue: 8, running: 2, fail: 1, retry: 0, avgMin: 12, ok: 28 },
+      { id: "ana", name: "数据分析绘图", asset: "分析图表", queue: 15, running: 2, fail: 4, retry: 2, avgMin: 25, ok: 19 },
+      { id: "wri", name: "综述写作审阅", asset: "综述草稿", queue: 5, running: 1, fail: 0, retry: 0, avgMin: 40, ok: 11 },
+    ];
+
+    const failTasks = [
+      { id: "T-1042", stage: "ana", err: "R kernel 超时", retried: 2 },
+      { id: "T-1038", stage: "lit", err: "PubMed 限流", retried: 1 },
+      { id: "T-1029", stage: "ana", err: "数据列类型不匹配", retried: 3 },
+      { id: "T-1021", stage: "evi", err: "DOI 解析失败", retried: 0 },
+      { id: "T-1015", stage: "lit", err: "重复文献去重冲突", retried: 1 },
+    ];
+
+    const agents = [
+      { role: "Planner", run: 2, avgS: 42, tokens: 186000, stuck: 0, status: "ok" },
+      { role: "Source Manager", run: 3, avgS: 68, tokens: 241000, stuck: 0, status: "ok" },
+      { role: "Screener", run: 2, avgS: 95, tokens: 312000, stuck: 1, status: "warn" },
+      { role: "Evidence Agent", run: 3, avgS: 77, tokens: 298000, stuck: 0, status: "ok" },
+      { role: "Writer", run: 1, avgS: 120, tokens: 247000, stuck: 1, status: "warn" },
+    ];
+
+    const hosts = [
+      { name: "local-dev-01", type: "本地", online: true, vram: 0, vramTxt: "—", queue: 0, note: "文档/轻任务" },
+      { name: "ssh-lab-a100", type: "SSH/GPU", online: true, vram: 72, vramTxt: "57.6/80GB", queue: 4, note: "分析批处理" },
+      { name: "ssh-lab-a100-b", type: "SSH/GPU", online: true, vram: 45, vramTxt: "36/80GB", queue: 2, note: "备用" },
+      { name: "cloud-ecs-01", type: "云 ECS", online: true, vram: 0, vramTxt: "—", queue: 1, note: "Cloud API 侧" },
+      { name: "gpu-node-old", type: "SSH/GPU", online: false, vram: 0, vramTxt: "offline", queue: 0, note: "已摘除调度" },
+    ];
+
+    const providers = [
+      { name: "DeepSeek / deepseek-chat", calls: 860, tokens: "820k", cost: 62.4, status: "ok" },
+      { name: "DeepSeek / deepseek-reasoner", calls: 210, tokens: "310k", cost: 48.1, status: "ok" },
+      { name: "Qwen / qwen-max", calls: 95, tokens: "98k", cost: 35.2, status: "ok" },
+      { name: "OpenAI-compatible / backup", calls: 42, tokens: "56k", cost: 40.7, status: "warn" },
+    ];
+
+    const costTop = [
+      { task: "T-1033 多组学差异分析", cost: 18.6, reason: "reasoner 多轮 + 大图表" },
+      { task: "T-1027 系统综述初稿", cost: 14.2, reason: "Writer 长文 + 引用核验" },
+      { task: "T-1019 文献递归二轮", cost: 9.8, reason: "检索范围过大" },
+    ];
+
+    const abExps = [
+      {
+        id: "EXP-07",
+        title: "文献两轮筛选模板",
+        task: "bio-med-review-*",
+        old: { tools: 8.2, cost: 0.0315, success: 72 },
+        neu: { tools: 4.1, cost: 0.0221, success: 78 },
+        gray: 30, status: "running", sample: 42,
+      },
+      {
+        id: "EXP-08",
+        title: "多组学 QC 检查清单",
+        task: "omics-qc-*",
+        old: { tools: 6.4, cost: 0.0280, success: 80 },
+        neu: { tools: 5.1, cost: 0.0265, success: 81 },
+        gray: 20, status: "running", sample: 18,
+      },
+      {
+        id: "EXP-05",
+        title: "旧版绘图脚本路径",
+        task: "chart-*",
+        old: { tools: 3.9, cost: 0.0190, success: 88 },
+        neu: { tools: 4.6, cost: 0.0240, success: 79 },
+        gray: 0, status: "rolled_back", sample: 35,
+      },
+    ];
+
+    const expSteps = [
+      { name: "1 任务运行记录", note: "输入/过程/产物已保留", st: "ok" },
+      { name: "2 结果评价", note: "智能体初评 + 用户动作", st: "ok" },
+      { name: "3 经验候选", note: "本周 +3 条", st: "warn" },
+      { name: "4 人工确认", note: "禁止自动确认", st: "ok" },
+      { name: "5 灰度复用", note: "2 个实验进行中", st: "ok" },
+      { name: "6 效果验证 / 回退", note: "1 条已自动回退", st: "warn" },
+    ];
+
+    const radarProjects = [
+      { id: "P-01", name: "肿瘤免疫综述", trace: 94, noDoi: 3, dep: 1, partial: 0 },
+      { id: "P-02", name: "单细胞 QC 流程", trace: 81, noDoi: 7, dep: 2, partial: 2 },
+      { id: "P-03", name: "AAV 载体安全性", trace: 88, noDoi: 2, dep: 0, partial: 1 },
+      { id: "P-04", name: "队列研究证据链", trace: 72, noDoi: 11, dep: 4, partial: 3 },
+      { id: "P-05", name: "材料电池对照实验", trace: 96, noDoi: 0, dep: 0, partial: 0 },
+    ];
+
+    const gaps = [
+      { proj: "P-04 队列研究", item: "11 条引用无 DOI，无法核验来源", level: "bad" },
+      { proj: "P-02 单细胞 QC", item: "2 个图表标记 partial，不得写入终稿", level: "warn" },
+      { proj: "P-04 队列研究", item: "4 项未解决依赖（原始数据集未挂载）", level: "warn" },
+      { proj: "P-03 AAV 安全性", item: "1 条结论的证据卡未关联来源页码", level: "warn" },
+    ];
+
+    const flagsInit = { ...state.flags };
+
+    function pad(n) { return String(n).padStart(2, "0"); }
+    function nowStr() {
+      const d = new Date();
+      return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+    function fmt(n) { return Number(n).toLocaleString(); }
+
+    function log(msg, cls) {
+      const box = $("log-box");
+      const div = document.createElement("div");
+      div.innerHTML = `<span class="t">[${nowStr()}]</span> <span class="${cls || "accent"}">${msg}</span>`;
+      box.prepend(div);
+    }
+
+    function stageName(id) {
+      return ({ lit: "文献", evi: "证据", ana: "分析", wri: "写作" })[id] || id;
+    }
+
+    /* ---------- renderers ---------- */
+
+    function renderOverview() {
+      const backlog = pipeline.reduce((s, p) => s + p.queue + p.fail, 0);
+      const runAgents = agents.reduce((s, a) => s + a.run, 0);
+      const stuck = agents.reduce((s, a) => s + a.stuck, 0);
+      const q = qualityScore();
+
+      $("m-backlog").textContent = backlog;
+      $("m-backlog-tag").className = "tag " + (backlog > 30 ? "bad" : backlog > 20 ? "warn" : "ok");
+      $("m-backlog-tag").textContent = backlog > 30 ? "积压偏高" : backlog > 20 ? "关注" : "正常";
+      $("m-agents").innerHTML = `${runAgents}<small>个</small>`;
+      $("m-agent-tag").className = "tag " + (stuck ? "warn" : "ok");
+      $("m-agent-tag").textContent = stuck ? `卡住 ${stuck}` : "运行正常";
+
+      $("m-cost").innerHTML = `${state.costToday.toFixed(1)}<small>元</small>`;
+      const pct = Math.min(120, (state.costToday / state.budget) * 100);
+      $("m-budget-left").textContent = `预算 ${state.budget} 元 · 用 ${pct.toFixed(0)}%`;
+      $("m-cost-tag").className = "tag " + (pct >= 100 ? "bad" : pct >= 80 ? "warn" : "green");
+      $("m-cost-tag").textContent = pct >= 100 ? "超预算" : pct >= 80 ? "接近预算" : "预算内";
+
+      $("m-qscore").innerHTML = `${q}<small>/100</small>`;
+      $("m-qbar").style.width = q + "%";
+      $("asof1").textContent = `as_of ${nowStr()}`;
+      $("clock").textContent = nowStr();
+
+      // alerts
+      const alerts = [];
+      pipeline.forEach((p) => {
+        if (p.fail >= 3) alerts.push({ lv: "bad", t: `流水线「${p.name}」失败 ${p.fail} 件`, s: "建议熔断该技能或重试队列" });
+        else if (p.queue >= 12) alerts.push({ lv: "warn", t: `流水线「${p.name}」排队 ${p.queue}`, s: `avg ${p.avgMin}min` });
+      });
+      agents.forEach((a) => {
+        if (a.stuck) alerts.push({ lv: "warn", t: `智能体 ${a.role} 卡住 ${a.stuck} 个`, s: `阈值 ${state.stuckThMin}min` });
+      });
+      hosts.forEach((h) => {
+        if (h.vram >= 70) alerts.push({ lv: "warn", t: `主机 ${h.name} 显存 ${h.vram}%`, s: h.vramTxt });
+        if (!h.online) alerts.push({ lv: "bad", t: `主机 ${h.name} 离线`, s: h.note });
+      });
+      const pctB = (state.costToday / state.budget) * 100;
+      if (pctB >= 80) alerts.push({ lv: pctB >= 100 ? "bad" : "warn", t: `模型费用达预算 ${pctB.toFixed(0)}%`, s: "可启用低优先级节流" });
+      if ($("m-doi")) {
+        const doi = Number($("m-doi").textContent.replace("%", "")) || 0;
+      }
+      const doiRate = calcDoi();
+      if (doiRate < 95) alerts.push({ lv: "warn", t: `引用 DOI 解析率 ${doiRate}%`, s: "质量闸门缺口" });
+      const eviq = 7;
+      if (eviq > 0) alerts.push({ lv: "warn", t: `证据核验队列 ${eviq} 条`, s: "质量闸门" });
+
+      const al = $("alert-list");
+      if (!alerts.length) {
+        al.innerHTML = `<div class="item c3"><div class="name">暂无需要处理的告警<span>五层状态平稳</span></div><div class="sub">—</div><span class="tag ok">ok</span></div>`;
+      } else {
+        al.innerHTML = alerts.slice(0, 8).map((a) => `
+          <div class="item c3">
+            <div class="name">${a.t}<span>${a.s}</span></div>
+            <div class="sub">alert</div>
+            <span class="tag ${a.lv}">${a.lv === "bad" ? "high" : "watch"}</span>
+          </div>`).join("");
+      }
+
+      // breakers
+      const breakers = [
+        { key: "pipe_literature", label: "文献递归筛选" },
+        { key: "pipe_evidence", label: "证据图谱构建" },
+        { key: "pipe_analysis", label: "数据分析绘图" },
+        { key: "pipe_writing", label: "综述写作" },
+        { key: "gpu_scheduling", label: "GPU 主机调度" },
+        { key: "throttle_low", label: "低优先级费用节流" },
+      ];
+      $("breaker-list").innerHTML = breakers.map((b) => {
+        const on = state.flags[b.key];
+        return `<div class="item c3">
+          <div class="name">${b.label}<span>${on ? "允许执行" : "已熔断/暂停"}</span></div>
+          <div class="sub">${b.key}</div>
+          <span class="tag ${on ? "ok" : "bad"}">${on ? "ON" : "BROKEN"}</span>
+        </div>`;
+      }).join("");
+    }
+
+    function qualityScore() {
+      const doi = calcDoi();
+      const pass = calcRevPass();
+      return Math.round(doi * 0.4 + pass * 0.4 + 20); // 20 = evidence structure base
+    }
+
+    function calcDoi() {
+      // weighted from radar
+      let tot = 0, good = 0;
+      radarProjects.forEach((p) => {
+        const cites = 40;
+        tot += cites; good += cites - p.noDoi;
+      });
+      return Math.round((good / tot) * 100);
+    }
+
+    function calcRevPass() {
+      return 86; // mock pass rate
+    }
+
+    function renderPipeline() {
+      $("pipe-cards").innerHTML = pipeline.map((p, i) => {
+        const on = state.flags["pipe_" + p.id] !== false && state.flags[({
+          lit: "pipe_literature", evi: "pipe_evidence", ana: "pipe_analysis", wri: "pipe_writing"
+        })[p.id]];
+        const flagOn = state.flags[({
+          lit: "pipe_literature", evi: "pipe_evidence", ana: "pipe_analysis", wri: "pipe_writing"
+        })[p.id]];
+        return `<div class="pipe-step">
+          <div class="idx">${i + 1}</div>
+          <h4>${p.name}</h4>
+          <p>资产：${p.asset} · 开关 ${flagOn ? "ON" : "BROKEN"}</p>
+          <div class="stat-row">
+            <div class="stat-box"><b>${p.queue}</b><span>排队</span></div>
+            <div class="stat-box"><b>${flagOn ? p.running : 0}</b><span>运行</span></div>
+            <div class="stat-box"><b>${p.fail}</b><span>失败</span></div>
+          </div>
+          <div class="row">
+            <span class="tag ${p.fail >= 3 ? "bad" : "green"}">重试 ${p.retry}</span>
+            <span class="tag">avg ${p.avgMin}m</span>
+          </div>
+        </div>`;
+      }).join("");
+
+      $("fail-tbody").innerHTML = failTasks.map((f) => `
+        <tr>
+          <td>${f.id}</td>
+          <td>${stageName(f.stage)}</td>
+          <td style="color:var(--bad)">${f.err}</td>
+          <td>${f.retried}</td>
+          <td><button class="sm" onclick="retryTask('${f.id}')">重试</button></td>
+        </tr>`).join("");
+
+      $("throughput-list").innerHTML = pipeline.map((p) => `
+        <div class="item c4">
+          <div class="name">${p.name}<span>今日成功 ${p.ok}</span></div>
+          <div class="sub">fail ${p.fail}</div>
+          <div class="sub">${p.avgMin} min</div>
+          <span class="tag ${p.fail ? "warn" : "ok"}">${p.fail ? "有失败" : "稳定"}</span>
+        </div>`).join("");
+    }
+
+    window.retryTask = function (id) {
+      const t = failTasks.find((x) => x.id === id);
+      if (!t) return;
+      t.retried += 1;
+      const p = pipeline.find((x) => x.id === t.stage);
+      if (p) { p.retry += 1; p.queue += 1; p.fail = Math.max(0, p.fail - 1); }
+      log(`重试任务 ${id}（${stageName(t.stage)}）· 第 ${t.retried} 次`, "warn");
+      renderPipeline(); renderOverview();
+    };
+
+    function renderAgents() {
+      $("agent-list").innerHTML = agents.map((a) => {
+        const stuckCls = a.stuck ? "warn" : "ok";
+        return `<div class="item c5">
+          <div class="name">${a.role}<span>run ${a.run} · avg ${a.avgS}s</span></div>
+          <div class="sub">${fmt(a.tokens)} tok</div>
+          <div class="sub">stuck ${a.stuck}</div>
+          <div class="sub">阈值 ${state.stuckThMin}m</div>
+          <span class="tag ${stuckCls}">${a.stuck ? "stuck" : "ok"}</span>
+        </div>`;
+      }).join("");
+
+      const tok = agents.reduce((s, a) => s + a.tokens, 0);
+      $("m-tokens").textContent = fmt(Math.round(tok + state.tokens * 0.02));
+      $("m-taskdur").innerHTML = `${state.taskMin.toFixed(1)}<small>min</small>`;
+      const stuck = agents.reduce((s, a) => s + a.stuck, 0);
+      $("m-stuck").textContent = stuck + 2; // + HIL pending mock
+      $("m-stuck-tag").className = "tag " + (stuck ? "warn" : "ok");
+      $("m-stuck-tag").textContent = stuck ? "需介入" : "正常";
+    }
+
+    function renderHosts() {
+      $("host-list").innerHTML = hosts.map((h) => {
+        const barCls = h.vram >= 80 ? "badbg" : h.vram >= 60 ? "warnbg" : "";
+        return `<div class="item c5">
+          <div class="name">${h.name}<span>${h.type} · ${h.note}</span></div>
+          <div class="sub">${h.online ? "online" : "offline"}</div>
+          <div class="sub">VRAM ${h.vramTxt}</div>
+          <div class="sub">queue ${h.queue}</div>
+          <span class="tag ${h.online ? (h.vram >= 70 ? "warn" : "ok") : "bad"}">${h.online ? (h.vram >= 70 ? "busy" : "up") : "down"}</span>
+        </div>`;
+      }).join("");
+
+      const up = hosts.filter((h) => h.online).length;
+      $("m-hosts-up").innerHTML = `${up}<small>/${hosts.length}</small>`;
+      const gpus = hosts.filter((h) => h.vram > 0 && h.online);
+      const avgV = gpus.length ? Math.round(gpus.reduce((s, h) => s + h.vram, 0) / gpus.length) : 0;
+      $("m-vram").innerHTML = `${avgV}<small>%</small>`;
+      $("m-vram-bar").style.width = avgV + "%";
+      $("m-vram-bar").className = avgV >= 80 ? "badbg" : avgV >= 60 ? "warnbg" : "";
+      const q = hosts.reduce((s, h) => s + h.queue, 0);
+      $("m-queue").innerHTML = `${q}<small>jobs</small>`;
+      $("m-queue-tag").className = "tag " + (q >= 6 ? "warn" : "ok");
+      $("m-queue-tag").textContent = q >= 6 ? "排队偏多" : "可接受";
+    }
+
+    function renderCost() {
+      $("provider-tbody").innerHTML = providers.map((p) => `
+        <tr>
+          <td>${p.name}</td>
+          <td>${fmt(p.calls)}</td>
+          <td>${p.tokens}</td>
+          <td>${p.cost.toFixed(1)}</td>
+          <td><span class="tag ${p.status}">${p.status === "ok" ? "normal" : "backup"}</span></td>
+        </tr>`).join("");
+
+      const use = Math.min(120, (state.costToday / state.budget) * 100);
+      $("m-budget-use").innerHTML = `${use.toFixed(0)}<small>%</small>`;
+      const bar = $("m-budget-bar");
+      bar.style.width = Math.min(100, use) + "%";
+      bar.className = use >= 100 ? "badbg" : use >= 80 ? "warnbg" : "";
+      $("budget-toast").textContent =
+        use >= 100 ? `已超日预算 ${state.budget} 元，低优先级任务将被节流（若开关开启）。`
+        : use >= 80 ? `已使用 ${use.toFixed(0)}%，接近预算，请关注。`
+        : `预算 ${state.budget} 元，当前使用 ${use.toFixed(0)}%。`;
+
+      $("cost-top-list").innerHTML = costTop.map((c) => `
+        <div class="item c3">
+          <div class="name">${c.task}<span>${c.reason}</span></div>
+          <div class="sub">¥${c.cost.toFixed(1)}</div>
+          <span class="tag warn">top</span>
+        </div>`).join("");
+    }
+
+    function renderQuality() {
+      const pass = calcRevPass();
+      $("m-rev-pass").innerHTML = `${pass}<small>%</small>`;
+      $("m-rev-breakdown").textContent = `pass ${pass}% · warn 9% · fail 5%`;
+      $("m-rev-tag").className = "tag " + (pass >= 85 ? "ok" : "warn");
+      $("m-rev-tag").textContent = pass >= 85 ? "gate healthy" : "gate pressure";
+
+      $("m-evi-q").innerHTML = `7<small>条</small>`;
+      const doi = calcDoi();
+      $("m-doi").innerHTML = `${doi}<small>%</small>`;
+      $("m-doi-bar").style.width = doi + "%";
+
+      const gates = [
+        { name: "综述初稿 §3", proj: "P-01", result: "warning", note: "2 引用无 DOI" },
+        { name: "QC 报告图表包", proj: "P-02", result: "failure", note: "partial 产物被打回" },
+        { name: "AAV 证据表", proj: "P-03", result: "pass", note: "来源齐全" },
+        { name: "电池对照摘要", proj: "P-05", result: "pass", note: "可复现脚本已挂" },
+        { name: "队列筛选流程", proj: "P-04", result: "failure", note: "纳排依据缺失页码" },
+      ];
+      $("gate-list").innerHTML = gates.map((g) => `
+        <div class="item c4">
+          <div class="name">${g.name}<span>${g.proj} · ${g.note}</span></div>
+          <div class="sub">reviewer</div>
+          <div class="sub">—</div>
+          <span class="tag ${g.result === "pass" ? "ok" : g.result === "warning" ? "warn" : "bad"}">${g.result}</span>
+        </div>`).join("");
+    }
+
+    function renderAB() {
+      $("ab-live").innerHTML = abExps.filter((e) => e.status === "running").map((e) => {
+        const dTools = e.neu.tools - e.old.tools;
+        const dCost = e.neu.cost - e.old.cost;
+        const dSucc = e.neu.success - e.old.success;
+        const enough = e.sample >= state.abSample;
+        return `<div class="ab-card">
+          <h4>${e.id} · ${e.title}</h4>
+          <div class="meta">任务类型 ${e.task} · 样本 ${e.sample} / 需 ${state.abSample} ${enough ? "· 可判定" : "· 未验证"}</div>
+          <table>
+            <tr><th></th><th>旧经验</th><th>新经验</th><th>Δ</th></tr>
+            <tr><td>工具调用</td><td>${e.old.tools}</td><td>${e.neu.tools}</td><td class="${dTools < 0 ? "delta-ok" : "delta-bad"}">${dTools > 0 ? "+" : ""}${dTools.toFixed(1)}</td></tr>
+            <tr><td>单任务费用</td><td>${e.old.cost}</td><td>${e.neu.cost}</td><td class="${dCost < 0 ? "delta-ok" : "delta-bad"}">${dCost > 0 ? "+" : ""}${dCost.toFixed(4)}</td></tr>
+            <tr><td>成功率%</td><td>${e.old.success}</td><td>${e.neu.success}</td><td class="${dSucc >= 0 ? "delta-ok" : "delta-bad"}">${dSucc > 0 ? "+" : ""}${dSucc}</td></tr>
+          </table>
+        </div>`;
+      }).join("") + `<div class="ab-card new">
+          <h4>对照说明</h4>
+          <div class="meta">
+            旧 vs 新必须在<strong>同一任务类型</strong>上采样。样本 &lt; ${state.abSample} 时只显示「未验证」。
+            费用相对旧经验上浮超过 ${state.abTh}% 且样本足够 → 自动停用新经验并回退（若开关开启）。
+            原稿初测数字仅作方向参考，后台不夸大为「已验收」。
+          </div>
+        </div>`;
+
+      $("ab-tbody").innerHTML = abExps.map((e) => {
+        const enough = e.sample >= state.abSample;
+        const dCostPct = ((e.neu.cost - e.old.cost) / e.old.cost) * 100;
+        const st = e.status === "rolled_back" ? "bad" : enough ? "ok" : "warn";
+        const stTxt = e.status === "rolled_back" ? "已回退" : enough ? "对照中" : "未验证";
+        return `<tr>
+          <td>${e.id}<br/>${e.title}</td>
+          <td><span class="tag ${st}">${stTxt}</span></td>
+          <td>${e.gray}%</td>
+          <td>${e.old.tools} → ${e.neu.tools}</td>
+          <td>${e.old.cost} → ${e.neu.cost} (${dCostPct > 0 ? "+" : ""}${dCostPct.toFixed(0)}%)</td>
+          <td>
+            <button class="sm" onclick="abAction('${e.id}','gray')">+10%灰度</button>
+            <button class="sm" onclick="abAction('${e.id}','rollback')">回退</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+      $("exp-steps").innerHTML = expSteps.map((s) => `
+        <div class="item c3">
+          <div class="name">${s.name}<span>${s.note}</span></div>
+          <div class="sub">step</div>
+          <span class="tag ${s.st}">${s.st === "ok" ? "ok" : "watch"}</span>
+        </div>`).join("");
+    }
+
+    window.abAction = function (id, act) {
+      const e = abExps.find((x) => x.id === id);
+      if (!e) return;
+      if (act === "gray") {
+        if (e.status === "rolled_back") { log(`${id} 已回退，无法再灰度`, "bad"); return; }
+        if (e.sample < state.abSample) {
+          log(`${id} 样本 ${e.sample} < ${state.abSample}，拒绝提升灰度（未验证）`, "warn");
+          $("toast-ab").textContent = `${id} 样本不足，已拒绝提升灰度。`;
+          return;
+        }
+        const dCostPct = ((e.neu.cost - e.old.cost) / e.old.cost) * 100;
+        if (dCostPct > state.abTh && state.flags.auto_rollback) {
+          e.status = "rolled_back"; e.gray = 0;
+          log(`${id} 费用上浮 ${dCostPct.toFixed(0)}% > ${state.abTh}%，自动回退`, "bad");
+        } else {
+          e.gray = Math.min(100, e.gray + 10);
+          log(`${id} 灰度提升至 ${e.gray}%`, "ok");
+        }
+      } else if (act === "rollback") {
+        e.status = "rolled_back"; e.gray = 0;
+        log(`${id} 手动回退至旧经验`, "warn");
+      }
+      renderAB(); renderOverview();
+    };
+
+    function renderRadar() {
+      let noDoi = 0, dep = 0, partial = 0, wsum = 0;
+      radarProjects.forEach((p) => { noDoi += p.noDoi; dep += p.dep; partial += p.partial; wsum += p.trace; });
+      const avgTrace = Math.round(wsum / radarProjects.length);
+      $("m-trace").innerHTML = `${avgTrace}<small>%</small>`;
+      $("m-nodoi").innerHTML = `${noDoi}<small>条</small>`;
+      $("m-dep").innerHTML = `${dep}<small>项</small>`;
+      $("m-partial").innerHTML = `${partial}<small>个</small>`;
+
+      $("radar-rows").innerHTML = radarProjects.map((p) => {
+        const lv = p.trace >= 90 ? "ok" : p.trace >= 80 ? "warn" : "bad";
+        return `<div class="radar-row">
+          <div class="name">${p.name}<span>${p.id}</span></div>
+          <div class="bar thin" style="background:#e5eee9;border-radius:99px;height:8px;overflow:hidden">
+            <i class="${lv === "bad" ? "badbg" : lv === "warn" ? "warnbg" : ""}" style="width:${p.trace}%;height:100%;display:block;background:${lv === "ok" ? "linear-gradient(90deg,#2d6a4f,#52b788)" : ""}"></i>
+          </div>
+          <div class="sub">${p.trace}%</div>
+          <div class="sub hide-sm">DOI缺${p.noDoi}</div>
+        </div>`;
+      }).join("");
+
+      $("gap-list").innerHTML = gaps.map((g) => `
+        <div class="item c3">
+          <div class="name">${g.proj}<span>${g.item}</span></div>
+          <div class="sub">gap</div>
+          <span class="tag ${g.level}">${g.level === "bad" ? "high" : "medium"}</span>
+        </div>`).join("");
+    }
+
+    /* live tick */
+    function tick() {
+      // pipeline
+      pipeline.forEach((p) => {
+        const flagOn = state.flags[({
+          lit: "pipe_literature", evi: "pipe_evidence", ana: "pipe_analysis", wri: "pipe_writing"
+        })[p.id]];
+        if (flagOn) {
+          if (Math.random() < 0.4 && p.queue > 0) { p.queue -= 1; p.ok += 1; }
+          if (Math.random() < 0.15) p.queue += 1;
+          if (Math.random() < 0.08) { p.fail += 1; p.queue = Math.max(0, p.queue - 1); }
+        } else {
+          p.running = 0;
+        }
+        if (flagOn && p.running < state.pipelineConc + 1) {
+          p.running = Math.max(1, Math.min(state.pipelineConc + 2, p.running + (Math.random() < 0.5 ? -1 : 1)));
+        }
+      });
+
+      // agents
+      agents.forEach((a) => {
+        a.tokens += Math.round(Math.random() * 800);
+        a.avgS = Math.max(10, a.avgS + Math.round((Math.random() - 0.5) * 6));
+        if (Math.random() < 0.04) a.stuck = a.stuck ? Math.max(0, a.stuck - 1) : 1;
+        else if (Math.random() < 0.03) a.stuck += 1;
+      });
+      state.taskMin = Math.max(5, state.taskMin + (Math.random() - 0.5) * 0.2);
+
+      // hosts
+      hosts.forEach((h) => {
+        if (!h.online) return;
+        if (h.vram > 0) {
+          h.vram = Math.min(98, Math.max(5, h.vram + Math.round((Math.random() - 0.5) * 6)));
+          h.vramTxt = `${(h.vram * 0.8).toFixed(1)}/80GB`;
+        }
+        if (Math.random() < 0.12) h.queue = Math.max(0, h.queue + (Math.random() < 0.5 ? -1 : 1));
+      });
+
+      // cost
+      state.costToday += Math.random() * 0.8;
+      providers.forEach((p) => {
+        p.calls += Math.round(Math.random() * 3);
+        p.cost += Math.random() * 0.15;
+      });
+
+      renderOverview(); renderPipeline(); renderAgents(); renderHosts(); renderCost(); renderQuality();
+      $("clock").textContent = nowStr();
+    }
+
+    /* nav */
+    document.querySelectorAll(".nav-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const page = btn.getAttribute("data-page");
+        document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll(".page").forEach((p) => p.classList.remove("show"));
+        $("page-" + page).classList.add("show");
+        $("page-title").textContent = titles[page][0];
+        $("page-desc").textContent = titles[page][1];
+      });
+    });
+
+    function bindRange(inputId, valId, key, format, parse) {
+      const input = $(inputId);
+      const sync = () => {
+        state[key] = parse(input.value);
+        $(valId).textContent = format(input.value);
+      };
+      input.addEventListener("input", sync);
+      sync();
+    }
+
+    bindRange("p-pconc", "v-pconc", "pipelineConc", (v) => v, (v) => Number(v));
+    bindRange("p-aconc", "v-aconc", "agentConc", (v) => v, (v) => Number(v));
+    bindRange("p-budget", "v-budget", "budget", (v) => v, (v) => Number(v));
+    bindRange("p-stuck", "v-stuck", "stuckThMin", (v) => v, (v) => Number(v));
+    bindRange("p-abth", "v-abth", "abTh", (v) => v + "%", (v) => Number(v));
+    bindRange("p-absample", "v-absample", "abSample", (v) => v, (v) => Number(v));
+
+    $("btn-apply").addEventListener("click", () => {
+      const msg = `已记录：pipeline_conc=${state.pipelineConc}, agent_conc=${state.agentConc}, llm_budget=${state.budget}元, stuck_min=${state.stuckThMin}`;
+      $("toast-params").textContent = msg + ` · ${nowStr()}`;
+      log(msg, "accent");
+      renderOverview(); renderCost();
+    });
+
+    $("btn-reset").addEventListener("click", () => {
+      Object.assign(state, {
+        budget: defaults.budget, stuckThMin: defaults.stuckThMin,
+        pipelineConc: defaults.pipelineConc, agentConc: defaults.agentConc,
+        abTh: defaults.abTh, abSample: defaults.abSample,
+      });
+      $("p-pconc").value = defaults.pipelineConc; $("v-pconc").textContent = defaults.pipelineConc;
+      $("p-aconc").value = defaults.agentConc; $("v-aconc").textContent = defaults.agentConc;
+      $("p-budget").value = defaults.budget; $("v-budget").textContent = defaults.budget;
+      $("p-stuck").value = defaults.stuckThMin; $("v-stuck").textContent = defaults.stuckThMin;
+      $("p-abth").value = defaults.abTh; $("v-abth").textContent = defaults.abTh + "%";
+      $("p-absample").value = defaults.abSample; $("v-absample").textContent = defaults.abSample;
+      log("参数已恢复默认", "warn");
+      renderOverview(); renderCost();
+    });
+
+    document.querySelectorAll(".switch").forEach((sw) => {
+      sw.addEventListener("click", () => {
+        sw.classList.toggle("on");
+        const on = sw.classList.contains("on");
+        const flag = sw.getAttribute("data-flag");
+        const label = sw.getAttribute("data-label");
+
+        if (flag === "exp_auto_confirm" && on) {
+          if (!confirm("「经验自动确认」违反有界自进化原则，原型内确定打开？")) {
+            sw.classList.remove("on"); return;
+          }
+        }
+        if ((flag === "reviewer_required" || flag === "doi_required") && !on) {
+          if (!confirm(`关闭「${label}」会降低质量闸门强度，确定？`)) {
+            sw.classList.add("on"); return;
+          }
+        }
+
+        state.flags[flag] = on;
+        const msg = `${flag} → ${on ? "ON" : "OFF"}（${label}）`;
+        $("toast-flags") && ($("toast-flags").textContent = msg + ` · ${nowStr()}`);
+        log(msg, on ? "ok" : "warn");
+        renderOverview(); renderPipeline(); renderRadar && renderRadar();
+      });
+    });
+
+    // initial
+    renderOverview(); renderPipeline(); renderAgents(); renderHosts();
+    renderCost(); renderQuality(); renderAB(); renderRadar();
+    log("ScholarX 运维中枢原型已加载：五层监控 + 经验A/B + 证据雷达", "ok");
+    setInterval(tick, 3000);
+  </script>
+</body>
+</html>
