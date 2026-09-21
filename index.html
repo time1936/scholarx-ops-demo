@@ -52,10 +52,10 @@
     .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .top {
       display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
-      padding: 16px 22px; background: var(--surface); border-bottom: 1px solid var(--line);
+      padding: 12px 22px; background: var(--surface); border-bottom: 1px solid var(--line);
     }
     .top h2 { margin: 0; font-size: 18px; font-weight: 650; color: var(--green); }
-    .top .desc { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .top-right { display: flex; align-items: center; gap: 14px; }
     .live {
       display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
       border-radius: 999px; border: 1px solid var(--line); background: var(--green-soft);
@@ -67,9 +67,163 @@
     }
     @keyframes pulse { 50% { opacity: .45; transform: scale(.9); } }
 
-    .content { padding: 20px 22px 40px; display: grid; gap: 16px; }
+    .avatar-wrap { position: relative; text-align: center; cursor: pointer; user-select: none; }
+    .avatar {
+      width: 44px; height: 44px; border-radius: 50%; margin: 0 auto;
+      background: linear-gradient(145deg, var(--green), var(--green-2));
+      color: #fff; font-size: 18px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #c5dfd2; box-shadow: var(--shadow);
+    }
+    .avatar-name { margin-top: 4px; font-size: 12px; font-weight: 650; color: var(--ink); line-height: 1.2; }
+    .avatar-time { margin-top: 2px; font-size: 10px; color: var(--muted); opacity: .55; line-height: 1.2; }
+    .avatar-wrap:hover .avatar { border-color: var(--green-2); }
+
+    .modal-mask {
+      display: none; position: fixed; inset: 0; background: rgba(15,30,24,.35);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-mask.show { display: flex; }
+    .modal {
+      width: min(360px, 92vw); background: var(--surface); border-radius: 14px;
+      border: 1px solid var(--line); padding: 20px; box-shadow: 0 16px 48px rgba(27,67,50,.18);
+    }
+    .modal h3 { margin: 0 0 6px; font-size: 16px; color: var(--green); }
+    .modal p { margin: 0 0 14px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .modal label { display: block; font-size: 13px; margin: 10px 0 6px; }
+    .modal input {
+      width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line);
+      font-size: 13px; background: var(--surface-2); color: var(--ink);
+    }
+    .modal .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .modal-status {
+      margin-top: 12px; font-size: 12px; color: var(--muted);
+      padding: 8px 10px; background: var(--green-soft); border-radius: 8px;
+    }
+
+    .content { padding: 16px 20px 28px; display: grid; gap: 14px; flex: 1; }
     .page { display: none; }
-    .page.show { display: grid; gap: 16px; }
+    .page.show { display: grid; gap: 14px; }
+
+    /* ===== 运营总览：上 2/3 三大块 + 下 1/3 四宫格 ===== */
+    .page-overview-layout {
+      display: flex; flex-direction: column; gap: 14px; min-height: calc(100vh - 120px);
+    }
+    .hero-3 {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+      flex: 2; min-height: 0;
+    }
+    @media (max-width: 900px) {
+      .hero-3 { grid-template-columns: 1fr; flex: none; }
+      .health-4 { grid-template-columns: 1fr 1fr !important; }
+    }
+    .hero-card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+      padding: 20px 18px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; min-height: 340px;
+    }
+    .hero-card h3 {
+      margin: 0; font-size: 15px; font-weight: 650; color: var(--green);
+      letter-spacing: .02em;
+    }
+    .hero-num {
+      margin-top: 12px; font-size: clamp(40px, 4.2vw, 56px); font-weight: 800;
+      letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+    .hero-num small {
+      font-size: 16px; font-weight: 600; color: var(--muted); margin-left: 6px;
+    }
+    .hero-sub { margin-top: auto; }
+
+    .split-2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px;
+    }
+    .mini-block {
+      background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+      padding: 12px 10px; text-align: center;
+    }
+    .mini-block .lb { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .mini-block .num {
+      font-size: 22px; font-weight: 750; color: var(--ink); font-variant-numeric: tabular-nums;
+    }
+    .mini-block .num small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+
+    .arrow-down {
+      width: 36px; height: 36px; margin: 10px auto 0; border-radius: 50%;
+      border: 1px solid var(--line); background: var(--surface);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      color: var(--green-2); font-size: 16px; font-weight: 700;
+    }
+    .arrow-down:hover { background: var(--green-soft); border-color: var(--green-2); }
+
+    .btn-time {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+      padding: 8px 14px; border-radius: 999px; border: 1px solid var(--green-2);
+      background: var(--green-soft); color: var(--green); font-size: 13px; font-weight: 650;
+      cursor: pointer;
+    }
+    .btn-time:hover { background: #d7ebe0; }
+
+    .time-panel {
+      position: absolute; right: 0; top: 0; width: min(340px, 100%);
+      background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(27,67,50,.14); padding: 12px; z-index: 20;
+      transform: translateX(110%); opacity: 0; pointer-events: none;
+      transition: transform .28s ease, opacity .28s ease;
+    }
+    .time-panel.open { transform: translateX(0); opacity: 1; pointer-events: auto; }
+    .time-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .time-tabs button {
+      padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line);
+      background: var(--surface-2); color: var(--muted); font-size: 12px; cursor: pointer;
+    }
+    .time-tabs button.on {
+      background: var(--green); border-color: var(--green); color: #fff; font-weight: 650;
+    }
+    .chart-box { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+    .chart-box svg { width: 100%; height: 110px; display: block; }
+    .chart-meta { margin-top: 6px; font-size: 11px; color: var(--muted); }
+
+    .hero-rel { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+    .ops-advice {
+      margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+      background: var(--green-soft); border: 1px solid #c5dfd2;
+      font-size: 13px; line-height: 1.65; color: var(--ink);
+    }
+    .ops-advice strong { color: var(--green); font-weight: 700; }
+    .ops-advice .tagline {
+      display: inline-block; margin-bottom: 6px; font-size: 11px; font-weight: 700;
+      color: var(--green); letter-spacing: .04em;
+    }
+
+    .health-4 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; min-height: 200px;
+    }
+    .health-box {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+      padding: 14px 16px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; justify-content: center; gap: 6px;
+    }
+    .health-box .hz {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    }
+    .health-box .hname { font-size: 14px; font-weight: 700; color: var(--ink); }
+    .health-box .hparams { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .health-title {
+      grid-column: 1 / -1; font-size: 13px; font-weight: 650; color: var(--green);
+      margin-bottom: -4px;
+    }
+
+    .tag {
+      font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line);
+      color: var(--muted); background: var(--chip); white-space: nowrap; font-weight: 600;
+    }
+    .tag.ok { color: var(--ok); border-color: #b7dfc7; background: #e8f7ef; }
+    .tag.warn { color: var(--warn); border-color: #fcd9a8; background: #fff7ed; }
+    .tag.bad { color: var(--bad); border-color: #f5c2c2; background: #fef2f2; }
+    .tag.green { color: var(--green); border-color: #b7d6c7; background: var(--green-soft); }
 
     .grid-4 { display: grid; gap: 14px; grid-template-columns: repeat(4, 1fr); }
     .grid-3 { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); }
@@ -94,14 +248,6 @@
     .metric { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
     .metric small { font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 6px; }
     .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .tag {
-      font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line);
-      color: var(--muted); background: var(--chip); white-space: nowrap;
-    }
-    .tag.ok { color: var(--ok); border-color: #b7dfc7; background: #e8f7ef; }
-    .tag.warn { color: var(--warn); border-color: #fcd9a8; background: #fff7ed; }
-    .tag.bad { color: var(--bad); border-color: #f5c2c2; background: #fef2f2; }
-    .tag.green { color: var(--green); border-color: #b7d6c7; background: var(--green-soft); }
 
     .list { display: grid; gap: 10px; }
     .item {
@@ -138,19 +284,10 @@
     .bar > i.warnbg { background: linear-gradient(90deg, #d97706, #fbbf24); }
     .bar > i.badbg { background: linear-gradient(90deg, #b91c1c, #f87171); }
 
-    .spark {
-      display: flex; align-items: flex-end; gap: 3px; height: 48px; margin-top: 8px;
-    }
-    .spark i {
-      flex: 1; background: var(--green-soft); border: 1px solid #b7d6c7; border-radius: 2px 2px 0 0;
-      min-height: 4px;
-    }
-    .spark i.hot { background: rgba(45,110,79,.35); border-color: var(--green-2); }
-
     .param-card h3 { margin-bottom: 4px; }
     .param-card > p { margin: 0 0 14px; color: var(--muted); font-size: 12px; line-height: 1.55; }
     .field { margin-bottom: 14px; }
-    label { display: block; font-size: 13px; margin-bottom: 6px; }
+    label.lb { display: block; font-size: 13px; margin-bottom: 6px; }
     .val { float: right; color: var(--green-2); font-weight: 650; font-variant-numeric: tabular-nums; }
     input[type="range"] { width: 100%; accent-color: var(--green-2); }
     .switch-row {
@@ -191,19 +328,6 @@
     .log .bad { color: var(--bad); }
     .log .accent { color: var(--green-2); }
 
-    .insight {
-      display: grid; gap: 8px; grid-template-columns: auto 1fr auto; align-items: start;
-      padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2);
-    }
-    .insight .icon {
-      width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; color: #fff; background: var(--green-2);
-    }
-    .insight.warn .icon { background: var(--warn); }
-    .insight.bad .icon { background: var(--bad); }
-    .insight h4 { margin: 0 0 2px; font-size: 13px; }
-    .insight p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
-
     .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
     .filters button {
       padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
@@ -212,6 +336,17 @@
     .filters button.on {
       background: var(--green); border-color: var(--green); color: #fff; font-weight: 600;
     }
+
+    /* pie modal */
+    .pie-wrap { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+    .pie {
+      width: 120px; height: 120px; border-radius: 50%; flex: 0 0 auto;
+      border: 2px solid var(--line);
+    }
+    .pie-legend { font-size: 12px; line-height: 1.8; color: var(--ink); }
+    .pie-legend i {
+      display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px;
+    }
   </style>
 </head>
 <body>
@@ -219,7 +354,7 @@
     <aside class="side">
       <div class="brand">
         <h1>ScholarX 运营后台</h1>
-        <p>用户 · 模型路由 · 云资源<br />服务定价 / 促销 / 扩容</p>
+        <p>用户 · 模型路由 · 云资源</p>
       </div>
       <button class="nav-btn active" data-page="overview">运营总览</button>
       <div class="nav-sep">导师要求的三块</div>
@@ -232,99 +367,117 @@
       <button class="nav-btn" data-page="ops">定价·促销·扩容</button>
       <button class="nav-btn" data-page="params">运营参数</button>
       <button class="nav-btn" data-page="audit">操作日志</button>
-      <div class="side-foot">
-        公开演示 Mock<br />
-        <code>time1936.github.io/scholarx-ops-demo</code>
-      </div>
+      <div class="side-foot">公开演示 Mock<br /><code>time1936.github.io</code></div>
     </aside>
 
     <div class="main">
       <div class="top">
         <div>
           <h2 id="page-title">运营总览</h2>
-          <p class="desc" id="page-desc">给我们自己看：用户盘子、模型成本、云资源，支撑定价与扩容</p>
         </div>
-        <div class="live"><span class="dot"></span>实时 · <span id="clock">--:--:--</span></div>
+        <div class="top-right">
+          <div class="live"><span class="dot"></span>实时 · <span id="clock">--:--:--</span></div>
+          <div class="avatar-wrap" id="avatar-btn" title="点击登录 / 登出">
+            <div class="avatar" id="avatar-ic">运</div>
+            <div class="avatar-name" id="avatar-name">未登录</div>
+            <div class="avatar-time" id="avatar-time">点击头像登入</div>
+          </div>
+        </div>
       </div>
 
       <div class="content">
-        <!-- 总览 -->
+        <!-- 运营总览：按需求重排，无口径说明 -->
         <section class="page show" id="page-overview">
-          <div class="map-box">
-            <strong>口径说明（按导师原话）：</strong>
-            本后台<strong>不管理科研流程/多智能体</strong>（那是用户自己看的）。
-            我们关注：① 用户情况（总量、区间新增、付费/免费、画像）
-            ② 后台模型路由（上游调用、路由切换、按用户调用日志）
-            ③ 云服务器资源。用途：<strong>定价、做活动、维护系统</strong>——
-            人少了考虑促销，人多了考虑扩容。
-          </div>
+          <div class="page-overview-layout">
+            <div class="hero-3">
+              <!-- 1 总用户数 -->
+              <div class="hero-card">
+                <h3>总用户数</h3>
+                <div class="hero-num" id="m-users">—</div>
+                <div class="hero-sub">
+                  <div class="split-2">
+                    <div class="mini-block">
+                      <div class="lb">付费用户</div>
+                      <div class="num" id="m-paid">—<small>人</small></div>
+                    </div>
+                    <div class="mini-block">
+                      <div class="lb">免费用户</div>
+                      <div class="num" id="m-free">—<small>人</small></div>
+                    </div>
+                  </div>
+                  <div class="arrow-down" id="btn-pie" title="展开付费/免费占比">▼</div>
+                </div>
+              </div>
 
-          <div class="grid-4">
-            <div class="card">
-              <h3>总用户数</h3>
-              <div class="meta">注册累计</div>
-              <div class="metric" id="m-users">—</div>
-              <div class="row"><span class="tag green" id="m-users-tag">—</span><span class="meta" id="asof1">as_of —</span></div>
-            </div>
-            <div class="card">
-              <h3>区间新增注册</h3>
-              <div class="meta">当前筛选：<span id="m-range-label">近 7 天</span></div>
-              <div class="metric" id="m-new">—<small>人</small></div>
-              <div class="row"><span class="tag ok" id="m-new-tag">growth</span><span class="meta">较上周期 <span id="m-new-delta">—</span></span></div>
-            </div>
-            <div class="card">
-              <h3>付费 / 免费</h3>
-              <div class="meta">付费用户占比 · 免费占比</div>
-              <div class="metric" id="m-paid">—<small>付费</small></div>
-              <div class="row"><span class="tag green" id="m-free-tag">免费 —%</span><span class="meta">转化漏斗见「用户情况」</span></div>
-            </div>
-            <div class="card">
-              <h3>今日模型成本</h3>
-              <div class="meta">上游调用费用汇总</div>
-              <div class="metric" id="m-cost">—<small>元</small></div>
-              <div class="row"><span class="tag" id="m-arpu">ARPU —</span><span class="meta">成本/收入见运营页</span></div>
-            </div>
-          </div>
+              <!-- 2 新增用户数 -->
+              <div class="hero-card">
+                <h3>新增用户数</h3>
+                <div class="hero-num" id="m-new">—<small>人</small></div>
+                <div class="hero-sub hero-rel">
+                  <button class="btn-time" id="btn-time">时间 ▸</button>
+                  <div class="time-panel" id="time-panel">
+                    <div class="time-tabs" id="time-tabs">
+                      <button data-range="3">近 3 天</button>
+                      <button data-range="7" class="on">近 7 天</button>
+                      <button data-range="14">近 14 天</button>
+                      <button data-range="28">近 28 天</button>
+                      <button data-range="90">三个月</button>
+                    </div>
+                    <div class="chart-box">
+                      <svg id="line-svg" viewBox="0 0 300 110" preserveAspectRatio="none"></svg>
+                      <div class="chart-meta" id="line-meta">近 7 天注册趋势</div>
+                    </div>
+                  </div>
+                  <div class="ops-advice" id="new-hint" style="margin-top:12px;font-size:12px">
+                    点击「时间」查看各周期注册趋势
+                  </div>
+                </div>
+              </div>
 
-          <div class="grid-2">
-            <div class="card">
-              <h3>近 14 天新增注册趋势</h3>
-              <div class="meta">柱高 = 当日新注册；判断是否要促销</div>
-              <div class="spark" id="spark-reg"></div>
-              <div class="row"><span class="meta">左 → 右：14 天前 → 今天</span><span class="tag warn" id="spark-hint">观察中</span></div>
-            </div>
-            <div class="card">
-              <h3>系统侧健康（只看运维）</h3>
-              <div class="meta">云主机负载 + 模型路由 + 错误率</div>
-              <div class="list">
-                <div class="item c3">
-                  <div class="name">Cloud API<span>业务主服务</span></div>
-                  <div class="sub" id="h-api">—</div>
-                  <span class="tag ok">up</span>
-                </div>
-                <div class="item c3">
-                  <div class="name">模型网关<span>上游路由</span></div>
-                  <div class="sub" id="h-gw">—</div>
-                  <span class="tag ok" id="h-gw-tag">ok</span>
-                </div>
-                <div class="item c3">
-                  <div class="name">云服务器<span>CPU / 内存</span></div>
-                  <div class="sub" id="h-ecs">—</div>
-                  <span class="tag ok" id="h-ecs-tag">ok</span>
-                </div>
-                <div class="item c3">
-                  <div class="name">今日请求错误率<span>用户侧可感知</span></div>
-                  <div class="sub" id="h-err">—</div>
-                  <span class="tag ok" id="h-err-tag">ok</span>
+              <!-- 3 今日模型成本 -->
+              <div class="hero-card">
+                <h3>今日模型成本</h3>
+                <div class="hero-num" id="m-cost">—<small>元</small></div>
+                <div class="hero-sub">
+                  <div class="ops-advice" id="ops-advice">
+                    <span class="tagline">运营建议</span>
+                    <div id="advice-text">正在根据用户增长、付费结构与资源负载归纳建议…</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="card">
-            <h3>今日运营提示（自动归纳）</h3>
-            <div class="meta">基于 Mock 规则演示：增长↓→促销建议；负载↑→扩容建议</div>
-            <div class="list" id="insight-list"></div>
+            <div class="health-4">
+              <div class="health-title">系统侧健康</div>
+              <div class="health-box">
+                <div class="hz">
+                  <span class="hname">Cloud API</span>
+                  <span class="tag ok" id="h-api-st">up</span>
+                </div>
+                <div class="hparams" id="h-api-p">延迟 — · 今日调用 —</div>
+              </div>
+              <div class="health-box">
+                <div class="hz">
+                  <span class="hname">模型网关</span>
+                  <span class="tag ok" id="h-gw-st">ok</span>
+                </div>
+                <div class="hparams" id="h-gw-p">上游调用 — · 错误 —</div>
+              </div>
+              <div class="health-box">
+                <div class="hz">
+                  <span class="hname">云服务器</span>
+                  <span class="tag ok" id="h-ecs-st">ok</span>
+                </div>
+                <div class="hparams" id="h-ecs-p">CPU — · 内存 —</div>
+              </div>
+              <div class="health-box">
+                <div class="hz">
+                  <span class="hname">今日请求错误率</span>
+                  <span class="tag ok" id="h-err-st">ok</span>
+                </div>
+                <div class="hparams" id="h-err-p">错误率 — · 阈值 1%</div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -332,54 +485,32 @@
         <section class="page" id="page-users">
           <div class="card">
             <h3>用户总量与区间统计</h3>
-            <div class="meta">可切换统计区间；付费/免费拆分可延伸到套餐与续费</div>
+            <div class="meta">可切换统计区间；付费/免费可延伸到套餐与续费</div>
             <div class="filters" id="range-filters">
-              <button data-range="1" class="">今日</button>
+              <button data-range="1">今日</button>
               <button data-range="7" class="on">近 7 天</button>
               <button data-range="30">近 30 天</button>
               <button data-range="90">近 90 天</button>
             </div>
             <div class="grid-4">
-              <div class="card">
-                <h3>区间新增注册</h3>
-                <div class="metric" id="u-new">—</div>
-                <div class="row"><span class="tag green">register</span></div>
-              </div>
-              <div class="card">
-                <h3>其中付费转化</h3>
-                <div class="metric" id="u-paid">—</div>
-                <div class="row"><span class="tag ok" id="u-paid-rate">—%</span></div>
-              </div>
-              <div class="card">
-                <h3>区间活跃用户</h3>
-                <div class="metric" id="u-dau">—</div>
-                <div class="row"><span class="tag green">active</span></div>
-              </div>
-              <div class="card">
-                <h3>区间流失（估算）</h3>
-                <div class="metric" id="u-churn">—</div>
-                <div class="row"><span class="tag warn">churn</span></div>
-              </div>
+              <div class="card"><h3>区间新增注册</h3><div class="metric" id="u-new">—</div></div>
+              <div class="card"><h3>其中付费转化</h3><div class="metric" id="u-paid">—</div><div class="row"><span class="tag ok" id="u-paid-rate">—%</span></div></div>
+              <div class="card"><h3>区间活跃用户</h3><div class="metric" id="u-dau">—</div></div>
+              <div class="card"><h3>区间流失（估算）</h3><div class="metric" id="u-churn">—</div></div>
             </div>
           </div>
-
           <div class="grid-2">
             <div class="card">
               <h3>付费结构</h3>
-              <div class="meta">定价相关：各套餐人数与占比</div>
               <div class="list" id="plan-list"></div>
             </div>
             <div class="card">
               <h3>转化漏斗（注册 → 付费）</h3>
-              <div class="meta">用于判断「拉新不够」还是「转化不够」</div>
               <div class="list" id="funnel-list"></div>
-              <div class="toast" id="funnel-toast">漏斗转化偏低时，运营页会建议做活动而不是盲目扩容。</div>
             </div>
           </div>
-
           <div class="card">
             <h3>注册/付费明细（脱敏示意）</h3>
-            <div class="meta">正式系统需权限与脱敏；此处仅演示字段</div>
             <table>
               <thead><tr><th>用户</th><th>注册时间</th><th>状态</th><th>套餐</th><th>近7日调用</th><th>贡献(元)</th></tr></thead>
               <tbody id="user-tbody"></tbody>
@@ -387,37 +518,21 @@
           </div>
         </section>
 
-        <!-- 用户画像 -->
         <section class="page" id="page-portrait">
           <div class="grid-3">
-            <div class="card">
-              <h3>按活跃分层</h3>
-              <div class="meta">高活 / 中活 / 沉默 / 流失风险</div>
-              <div class="list" id="seg-active"></div>
-            </div>
-            <div class="card">
-              <h3>按使用量分层</h3>
-              <div class="meta">轻度 / 标准 / 重度（模型 token）</div>
-              <div class="list" id="seg-usage"></div>
-            </div>
-            <div class="card">
-              <h3>按付费能力</h3>
-              <div class="meta">免费 / 低价 / 标准 / 高价值</div>
-              <div class="list" id="seg-pay"></div>
-            </div>
+            <div class="card"><h3>按活跃分层</h3><div class="list" id="seg-active"></div></div>
+            <div class="card"><h3>按使用量分层</h3><div class="list" id="seg-usage"></div></div>
+            <div class="card"><h3>按付费能力</h3><div class="list" id="seg-pay"></div></div>
           </div>
           <div class="card">
-            <h3>画像交叉洞察（示例规则）</h3>
-            <div class="meta">后台输出「哪类人该运营」，而不是只堆图表</div>
+            <h3>画像交叉洞察</h3>
             <div class="list" id="portrait-insight"></div>
           </div>
         </section>
 
-        <!-- 模型路由 -->
         <section class="page" id="page-routing">
           <div class="card">
             <h3>上游模型调用情况</h3>
-            <div class="meta">各上游 Provider 的调用量、成功率、延迟、费用</div>
             <table>
               <thead><tr><th>上游模型</th><th>今日调用</th><th>成功率</th><th>P95延迟</th><th>费用(元)</th><th>状态</th></tr></thead>
               <tbody id="up-tbody"></tbody>
@@ -426,38 +541,34 @@
           <div class="grid-2">
             <div class="card">
               <h3>当前路由策略</h3>
-              <div class="meta">权重影响请求分配；可受控调整（正式需审计）</div>
               <div class="field">
-                <label>DeepSeek 权重 <span class="val" id="v-w1">55%</span></label>
+                <label class="lb">DeepSeek 权重 <span class="val" id="v-w1">55%</span></label>
                 <input type="range" id="p-w1" min="0" max="100" step="5" value="55" />
               </div>
               <div class="field">
-                <label>Qwen 权重 <span class="val" id="v-w2">30%</span></label>
+                <label class="lb">Qwen 权重 <span class="val" id="v-w2">30%</span></label>
                 <input type="range" id="p-w2" min="0" max="100" step="5" value="30" />
               </div>
               <div class="field">
-                <label>备用/其他 <span class="val" id="v-w3">15%</span></label>
+                <label class="lb">备用/其他 <span class="val" id="v-w3">15%</span></label>
                 <input type="range" id="p-w3" min="0" max="100" step="5" value="15" />
               </div>
               <div class="actions">
                 <button class="primary" id="btn-route">提交路由权重（原型）</button>
                 <button class="ghost" id="btn-failover">演示：DeepSeek 故障切换</button>
               </div>
-              <div class="toast" id="toast-route">正式环境：路由变更写审计，并限制流量切换速率。</div>
+              <div class="toast" id="toast-route">正式环境变更写审计。</div>
             </div>
             <div class="card">
               <h3>路由切换历史</h3>
-              <div class="meta">谁在什么时候把流量切到了哪里</div>
               <div class="list" id="switch-list"></div>
             </div>
           </div>
         </section>
 
-        <!-- 调用日志 -->
         <section class="page" id="page-logs">
           <div class="card">
             <h3>按用户的模型调用日志</h3>
-            <div class="meta">排障、成本归因、识别异常刷量；正式环境需权限与脱敏</div>
             <div class="filters">
               <button class="on" data-logfilter="all">全部</button>
               <button data-logfilter="paid">仅付费</button>
@@ -471,11 +582,9 @@
           </div>
         </section>
 
-        <!-- 云资源 -->
         <section class="page" id="page-cloud">
           <div class="card">
             <h3>云服务器资源使用情况</h3>
-            <div class="meta">用于判断是否扩容；与用户增长、模型调用量对照看</div>
             <div class="list" id="ecs-list"></div>
           </div>
           <div class="grid-3">
@@ -492,78 +601,53 @@
             <div class="card">
               <h3>带宽 / 磁盘</h3>
               <div class="metric" id="m-net">—<small>Mbps</small></div>
-              <div class="row"><span class="tag" id="m-disk">磁盘 —</span><span class="meta">ECS + OSS</span></div>
+              <div class="row"><span class="tag" id="m-disk">磁盘 —</span></div>
             </div>
           </div>
           <div class="card">
-            <h3>扩容判断（规则示意）</h3>
-            <div class="meta">用户增长 + 资源占用同时高位时，提示扩容；避免单看 CPU 误判</div>
+            <h3>扩容判断</h3>
             <div class="list" id="scale-list"></div>
           </div>
         </section>
 
-        <!-- 运营决策 -->
         <section class="page" id="page-ops">
-          <div class="map-box">
-            <strong>这一页直接对应导师说的用途：</strong>
-            用户少了是不是要搞促销？用户多了是不是要扩容？模型成本是否挤压利润？
-            指标只服务<strong>我们自己</strong>的定价与维护决策。
-          </div>
           <div class="grid-3">
-            <div class="card">
-              <h3>收入 / 成本（示意）</h3>
-              <div class="meta">ARPU、模型成本占比、粗算毛利</div>
-              <div class="list" id="money-list"></div>
-            </div>
-            <div class="card">
-              <h3>促销相关信号</h3>
-              <div class="meta">增长、活跃、转化、流失</div>
-              <div class="list" id="promo-list"></div>
-            </div>
-            <div class="card">
-              <h3>扩容相关信号</h3>
-              <div class="meta">并发、资源、上游故障</div>
-              <div class="list" id="scale-signal"></div>
-            </div>
+            <div class="card"><h3>收入 / 成本</h3><div class="list" id="money-list"></div></div>
+            <div class="card"><h3>促销相关信号</h3><div class="list" id="promo-list"></div></div>
+            <div class="card"><h3>扩容相关信号</h3><div class="list" id="scale-signal"></div></div>
           </div>
           <div class="card">
             <h3>建议动作（原型演示）</h3>
-            <div class="meta">点击会写入操作日志，正式系统应变成工单/审批</div>
             <div class="actions">
-              <button class="primary" onclick="opsAction('create_promo','创建促销活动草案')">创建促销活动草案</button>
+              <button class="primary" onclick="opsAction('promo','创建促销活动草案')">创建促销活动草案</button>
               <button class="ghost" onclick="opsAction('capacity','提交扩容评估单')">提交扩容评估单</button>
               <button class="ghost" onclick="opsAction('price','打开定价复盘清单')">打开定价复盘清单</button>
             </div>
-            <div class="toast" id="toast-ops">仅本地演示，不会真的发优惠券或改生产。</div>
+            <div class="toast" id="toast-ops">仅本地演示。</div>
           </div>
         </section>
 
-        <!-- 运营参数 -->
         <section class="page" id="page-params">
           <div class="grid-2">
             <div class="card param-card">
               <h3>告警与阈值</h3>
-              <p>影响总览提示：什么时候催你促销/扩容。</p>
               <div class="field">
-                <label>日新增注册告警线 <span class="val" id="v-reg">80</span></label>
+                <label class="lb">日新增注册告警线 <span class="val" id="v-reg">80</span></label>
                 <input type="range" id="p-reg" min="20" max="300" step="10" value="80" />
               </div>
               <div class="field">
-                <label>CPU 扩容提醒线 <span class="val" id="v-cpu">75%</span></label>
+                <label class="lb">CPU 扩容提醒线 <span class="val" id="v-cpu">75%</span></label>
                 <input type="range" id="p-cpu" min="50" max="95" step="5" value="75" />
               </div>
               <div class="field">
-                <label>模型成本占收入告警 <span class="val" id="v-costpct">40%</span></label>
+                <label class="lb">模型成本占收入告警 <span class="val" id="v-costpct">40%</span></label>
                 <input type="range" id="p-costpct" min="10" max="80" step="5" value="40" />
               </div>
-              <div class="actions">
-                <button class="primary" id="btn-apply">保存阈值（原型）</button>
-              </div>
-              <div class="toast" id="toast-params">正式环境保存需权限与审计。</div>
+              <div class="actions"><button class="primary" id="btn-apply">保存阈值（原型）</button></div>
+              <div class="toast" id="toast-params">正式环境需审计。</div>
             </div>
             <div class="card param-card">
-              <h3>业务开关（运营向）</h3>
-              <p>服务定价/活动/维护；不含科研流水线开关。</p>
+              <h3>业务开关</h3>
               <div class="switch-row">
                 <div><div style="font-size:13px">开放注册</div><div class="meta">biz.registration_open</div></div>
                 <div class="switch on" data-flag="registration_open" data-label="开放注册"></div>
@@ -577,47 +661,67 @@
                 <div class="switch" data-flag="promo_badge" data-label="促销标签"></div>
               </div>
               <div class="switch-row">
-                <div><div style="font-size:13px">维护模式（只读）</div><div class="meta">biz.maintenance</div></div>
+                <div><div style="font-size:13px">维护模式</div><div class="meta">biz.maintenance</div></div>
                 <div class="switch" data-flag="maintenance" data-label="维护模式"></div>
               </div>
               <div class="switch-row">
-                <div><div style="font-size:13px">模型路由自动故障转移</div><div class="meta">route.auto_failover</div></div>
+                <div><div style="font-size:13px">路由自动故障转移</div><div class="meta">route.auto_failover</div></div>
                 <div class="switch on" data-flag="auto_failover" data-label="自动故障转移"></div>
               </div>
               <div class="switch-row">
                 <div><div style="font-size:13px">免费用户限流</div><div class="meta">route.free_user_throttle</div></div>
                 <div class="switch on" data-flag="free_throttle" data-label="免费限流"></div>
               </div>
-              <div class="toast" id="toast-flags">开关写入操作日志。</div>
             </div>
-          </div>
-          <div class="card">
-            <h3>后台模块 ↔ 导师要求对照</h3>
-            <table>
-              <thead><tr><th>导师原话</th><th>后台页面</th><th>能回答的问题</th></tr></thead>
-              <tbody>
-                <tr><td>一共多少用户</td><td>运营总览 / 用户情况</td><td>总量、区间趋势</td></tr>
-                <tr><td>区间新增注册</td><td>用户情况（1/7/30/90天）</td><td>拉新是否变差</td></tr>
-                <tr><td>付费用户 / 免费占比</td><td>用户情况 + 用户画像</td><td>转化与结构是否健康</td></tr>
-                <tr><td>用户画像管理</td><td>用户画像</td><td>该向谁促销、谁是高价值</td></tr>
-                <tr><td>上游模型调用</td><td>模型路由</td><td>哪家贵/慢/失败多</td></tr>
-                <tr><td>路由切换情况</td><td>模型路由 · 切换历史</td><td>何时切走、为何切</td></tr>
-                <tr><td>每用户调用日志</td><td>用户调用日志</td><td>谁在刷量、成本归属</td></tr>
-                <tr><td>云服务器资源</td><td>云服务器资源</td><td>要不要扩容</td></tr>
-                <tr><td>定价/促销/维护</td><td>定价·促销·扩容</td><td>下一步运营动作</td></tr>
-              </tbody>
-            </table>
           </div>
         </section>
 
-        <!-- 审计 -->
         <section class="page" id="page-audit">
           <div class="card">
             <h3>操作日志（本地原型）</h3>
-            <div class="meta">阈值修改、路由权重、业务开关、运营建议动作</div>
             <div class="log" id="log-box"><div><span class="t">[--:--:--]</span> 运营后台原型已启动…</div></div>
           </div>
         </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- 登录弹窗 -->
+  <div class="modal-mask" id="login-mask">
+    <div class="modal">
+      <h3 id="login-title">运营账号</h3>
+      <p>演示用登录 / 登出，正式环境接团队统一认证，此处不传真实密码到服务器。</p>
+      <div id="login-form">
+        <label>用户名</label>
+        <input id="in-user" type="text" placeholder="例如 time1936" value="time1936" />
+        <label>密码</label>
+        <input id="in-pass" type="password" placeholder="演示可任意填写" value="demo" />
+        <div class="actions">
+          <button class="primary" id="btn-login">登录</button>
+          <button class="ghost" id="btn-close-login">关闭</button>
+        </div>
+      </div>
+      <div id="logout-area" style="display:none">
+        <div class="modal-status" id="login-info">—</div>
+        <div class="actions">
+          <button class="ghost" id="btn-logout">登出</button>
+          <button class="primary" id="btn-close-login2">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 占比扇形图弹窗 -->
+  <div class="modal-mask" id="pie-mask">
+    <div class="modal">
+      <h3>付费 / 免费用户占比</h3>
+      <p>基于当前实时总用户数计算（演示数据）。</p>
+      <div class="pie-wrap">
+        <div class="pie" id="pie-chart"></div>
+        <div class="pie-legend" id="pie-legend"></div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="btn-close-pie">关闭</button>
       </div>
     </div>
   </div>
@@ -626,41 +730,51 @@
     const $ = (id) => document.getElementById(id);
 
     const titles = {
-      overview: ["运营总览", "用户盘子 / 模型成本 / 云资源 · 服务定价促销扩容"],
-      users: ["用户情况", "总量、区间新增、付费/免费、转化漏斗"],
-      portrait: ["用户画像", "活跃 / 用量 / 付费能力分层与运营含义"],
-      routing: ["模型路由", "上游调用、权重策略、切换历史"],
-      logs: ["用户调用日志", "按用户查看模型调用（脱敏示意）"],
-      cloud: ["云服务器资源", "CPU/内存/磁盘/带宽 · 扩容判断"],
-      ops: ["定价 · 促销 · 扩容", "给我们自己的决策页"],
-      params: ["运营参数", "告警阈值与业务开关"],
-      audit: ["操作日志", "本地审计示意"],
+      overview: "运营总览",
+      users: "用户情况",
+      portrait: "用户画像",
+      routing: "模型路由",
+      logs: "用户调用日志",
+      cloud: "云服务器资源",
+      ops: "定价 · 促销 · 扩容",
+      params: "运营参数",
+      audit: "操作日志",
     };
 
     const state = {
       totalUsers: 12846,
-      new7: 426,
-      new7Prev: 512,
       paidUsers: 1862,
-      freeUsers: 10984,
       costToday: 386.5,
       revenueToday: 920,
       dau: 3200,
-      rangeDays: 7,
+      new7: 426,
+      new7Prev: 512,
       cpu: 62,
       mem: 71,
-      bandwidth: 148,
-      diskPct: 44,
       errRate: 0.42,
-      weights: { w1: 55, w2: 30, w3: 15 },
+      apiLatency: 46,
+      apiCalls: 18640,
+      gwCalls: 61970,
+      gwErr: 0.31,
+      rangeDays: 7,
       th: { reg: 80, cpu: 75, costPct: 40 },
+      weights: { w1: 55, w2: 30, w3: 15 },
+      auth: { loggedIn: false, user: "", time: "" },
       flags: {
         registration_open: true, billing_enabled: true, promo_badge: false,
         maintenance: false, auto_failover: true, free_throttle: true,
       },
     };
+    state.freeUsers = state.totalUsers - state.paidUsers;
 
-    const reg14 = [38, 42, 55, 61, 48, 52, 70, 66, 58, 45, 40, 36, 33, 29];
+    /* 各周期注册序列（演示） */
+    const trendData = {
+      3: [31, 28, 29],
+      7: [70, 66, 58, 45, 40, 36, 29],
+      14: [38, 42, 55, 61, 48, 52, 70, 66, 58, 45, 40, 36, 33, 29],
+      28: Array.from({ length: 28 }, (_, i) => Math.round(40 + 25 * Math.sin(i / 3) + (i > 20 ? -8 : 0))),
+      90: Array.from({ length: 13 }, (_, i) => Math.round(220 + 80 * Math.sin(i / 2) - i * 6)),
+    };
 
     const plans = [
       { name: "免费版", users: 10984, price: 0, tag: "free" },
@@ -669,7 +783,6 @@
       { name: "专业版（月）", users: 312, price: 299, tag: "pro" },
       { name: "团队版", users: 90, price: 999, tag: "team" },
     ];
-
     const usersSample = [
       { id: "U-10023", reg: "2026-09-12", st: "付费", plan: "标准版", calls: 420, rev: 99 },
       { id: "U-10041", reg: "2026-09-13", st: "免费", plan: "免费版", calls: 88, rev: 0 },
@@ -678,32 +791,25 @@
       { id: "U-10090", reg: "2026-09-16", st: "付费", plan: "体验包", calls: 96, rev: 29 },
       { id: "U-10102", reg: "2026-09-17", st: "沉默", plan: "免费版", calls: 0, rev: 0 },
     ];
-
     const upstream = [
       { name: "DeepSeek-Chat", calls: 42560, ok: 99.6, p95: 820, cost: 186.2, st: "ok" },
       { name: "DeepSeek-Reasoner", calls: 8210, ok: 98.9, p95: 2400, cost: 124.5, st: "ok" },
       { name: "Qwen-Max", calls: 10340, ok: 99.2, p95: 950, cost: 62.8, st: "ok" },
       { name: "Backup-API", calls: 860, ok: 96.1, p95: 1600, cost: 13.0, st: "warn" },
     ];
-
     const switches = [
-      { t: "14:22", who: "system", from: "DeepSeek", to: "Qwen", why: "P95 超过 2s，自动降载" },
+      { t: "14:22", who: "system", from: "DeepSeek", to: "Qwen", why: "P95 超过 2s" },
       { t: "11:05", who: "operator", from: "Qwen", to: "DeepSeek", why: "恢复默认权重" },
       { t: "昨日 21:40", who: "system", from: "DeepSeek", to: "Backup", why: "上游 5xx 突增" },
       { t: "昨日 22:10", who: "system", from: "Backup", to: "DeepSeek", why: "上游恢复" },
     ];
-
     const calls = [
       { t: "14:31:02", uid: "U-10058", pay: "paid", model: "DeepSeek-Reasoner", tok: 8420, ms: 2104, cost: 0.28, st: "ok" },
       { t: "14:30:48", uid: "U-10023", pay: "paid", model: "DeepSeek-Chat", tok: 2200, ms: 760, cost: 0.04, st: "ok" },
       { t: "14:30:12", uid: "U-10041", pay: "free", model: "Qwen-Max", tok: 980, ms: 640, cost: 0.02, st: "ok" },
       { t: "14:29:55", uid: "U-10077", pay: "free", model: "DeepSeek-Chat", tok: 420, ms: 510, cost: 0.01, st: "ok" },
-      { t: "14:29:10", uid: "U-10090", pay: "paid", model: "DeepSeek-Chat", tok: 3100, ms: 890, cost: 0.06, st: "ok" },
       { t: "14:28:44", uid: "U-10102", pay: "free", model: "Backup-API", tok: 150, ms: 3200, cost: 0.01, st: "err" },
-      { t: "14:28:02", uid: "U-10058", pay: "paid", model: "Qwen-Max", tok: 5600, ms: 1020, cost: 0.09, st: "ok" },
-      { t: "14:27:31", uid: "U-10023", pay: "paid", model: "DeepSeek-Chat", tok: 1800, ms: 700, cost: 0.03, st: "ok" },
     ];
-
     const ecs = [
       { name: "ecs-cloud-api-01", role: "Cloud API", cpu: 58, mem: 64, disk: 40, note: "主力" },
       { name: "ecs-gateway-01", role: "模型网关", cpu: 71, mem: 77, disk: 35, note: "负载偏高" },
@@ -716,6 +822,10 @@
       const d = new Date();
       return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
+    function nowMinute() {
+      const d = new Date();
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
     function fmt(n) { return Number(n).toLocaleString(); }
 
     function log(msg, cls) {
@@ -727,103 +837,205 @@
 
     window.opsAction = function (kind, label) {
       log(`运营动作：${label}`, "ok");
-      $("toast-ops").textContent = `${label} 已记录 · ${nowStr()}（演示，未执行真实操作）`;
+      $("toast-ops").textContent = `${label} 已记录 · ${nowStr()}`;
     };
 
-    function rangeNew(days) {
-      if (days === 1) return Math.round(state.new7 / 7 * 0.9);
-      if (days === 7) return state.new7;
-      if (days === 30) return Math.round(state.new7 * 4.1);
-      return Math.round(state.new7 * 11);
+    /* ---------- 登录头像 ---------- */
+    function renderAuth() {
+      if (state.auth.loggedIn) {
+        $("avatar-ic").textContent = (state.auth.user || "U").slice(0, 1).toUpperCase();
+        $("avatar-name").textContent = state.auth.user;
+        $("avatar-time").textContent = `登录于 ${state.auth.time}`;
+      } else {
+        $("avatar-ic").textContent = "游";
+        $("avatar-name").textContent = "未登录";
+        $("avatar-time").textContent = "点击头像登入";
+      }
+    }
+
+    function openLoginModal() {
+      $("login-mask").classList.add("show");
+      if (state.auth.loggedIn) {
+        $("login-title").textContent = "账号信息";
+        $("login-form").style.display = "none";
+        $("logout-area").style.display = "block";
+        $("login-info").textContent = `当前用户：${state.auth.user} · 登录时间：${state.auth.time}`;
+      } else {
+        $("login-title").textContent = "登录运营账号";
+        $("login-form").style.display = "block";
+        $("logout-area").style.display = "none";
+      }
+    }
+    function closeLoginModal() { $("login-mask").classList.remove("show"); }
+
+    $("avatar-btn").addEventListener("click", openLoginModal);
+    $("btn-close-login").addEventListener("click", closeLoginModal);
+    $("btn-close-login2").addEventListener("click", closeLoginModal);
+    $("btn-login").addEventListener("click", () => {
+      const u = ($("in-user").value || "operator").trim() || "operator";
+      state.auth = { loggedIn: true, user: u, time: nowMinute() };
+      renderAuth(); closeLoginModal();
+      log(`用户 ${u} 登录`, "ok");
+    });
+    $("btn-logout").addEventListener("click", () => {
+      const u = state.auth.user;
+      state.auth = { loggedIn: false, user: "", time: "" };
+      renderAuth(); closeLoginModal();
+      log(`用户 ${u} 登出`, "warn");
+    });
+
+    /* ---------- 折线图 ---------- */
+    function rangeLabel(d) {
+      return d === 90 ? "三个月" : `近 ${d} 天`;
+    }
+    function sumRange(d) {
+      return trendData[d].reduce((s, x) => s + x, 0);
+    }
+    function drawLine(d) {
+      const data = trendData[d] || trendData[7];
+      const svg = $("line-svg");
+      const w = 300, h = 110, pad = 8;
+      const max = Math.max(...data) * 1.15 || 1;
+      const min = 0;
+      const pts = data.map((v, i) => {
+        const x = pad + (i / Math.max(1, data.length - 1)) * (w - pad * 2);
+        const y = h - pad - ((v - min) / (max - min)) * (h - pad * 2);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      const poly = pts.join(" ");
+      const area = `${pad},${h - pad} ${poly} ${w - pad},${h - pad}`;
+      svg.innerHTML = `
+        <polygon points="${area}" fill="rgba(45,110,79,.12)" />
+        <polyline points="${poly}" fill="none" stroke="#1b4332" stroke-width="2" />
+        ${pts.map((p) => {
+          const [x, y] = p.split(",");
+          return `<circle cx="${x}" cy="${y}" r="2.5" fill="#2d6a4f" />`;
+        }).join("")}
+      `;
+      $("line-meta").textContent = `${rangeLabel(d)}注册趋势 · 合计 ${fmt(sumRange(d))} 人 · 点选其它周期可切换`;
+      $("m-new").innerHTML = `${fmt(sumRange(d))}<small>人</small>`;
+      $("new-hint").textContent = `${rangeLabel(d)}新增合计 ${fmt(sumRange(d))} 人。数据可点击切换周期。`;
+    }
+
+    $("btn-time").addEventListener("click", () => {
+      $("time-panel").classList.toggle("open");
+    });
+    document.querySelectorAll("#time-tabs button").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.querySelectorAll("#time-tabs button").forEach((b) => b.classList.remove("on"));
+        btn.classList.add("on");
+        const d = Number(btn.getAttribute("data-range"));
+        state.rangeDays = d;
+        drawLine(d);
+        log(`新增用户趋势切换：${rangeLabel(d)}`, "accent");
+      });
+    });
+
+    /* ---------- 扇形图 ---------- */
+    function openPie() {
+      const paid = state.paidUsers;
+      const free = state.freeUsers;
+      const total = paid + free || 1;
+      const p1 = (paid / total) * 100;
+      const p2 = 100 - p1;
+      $("pie-chart").style.background =
+        `conic-gradient(var(--green-2) 0% ${p1}%, #9bb8a8 ${p1}% 100%)`;
+      $("pie-legend").innerHTML = `
+        <div><i style="background:var(--green-2)"></i>付费用户：${fmt(paid)} 人（${p1.toFixed(1)}%）</div>
+        <div><i style="background:#9bb8a8"></i>免费用户：${fmt(free)} 人（${p2.toFixed(1)}%）</div>
+        <div style="margin-top:8px;color:var(--muted)">实时总用户：${fmt(total)} 人</div>
+      `;
+      $("pie-mask").classList.add("show");
+    }
+    $("btn-pie").addEventListener("click", openPie);
+    $("btn-close-pie").addEventListener("click", () => $("pie-mask").classList.remove("show"));
+
+    /* ---------- 运营总览渲染 ---------- */
+    function buildAdvice() {
+      const growth = ((state.new7 - state.new7Prev) / state.new7Prev) * 100;
+      const paidPct = (state.paidUsers / state.totalUsers) * 100;
+      const costRatio = (state.costToday / Math.max(1, state.revenueToday)) * 100;
+      const tips = [];
+
+      if (growth < -5) {
+        tips.push(`近 7 天新增较上周期下降 ${Math.abs(growth).toFixed(0)}%，用户在变少——优先评估促销/召回，暂不盲目扩容。`);
+      } else if (growth > 5) {
+        tips.push(`近 7 天新增较上周期上升 ${growth.toFixed(0)}%，拉新尚可——关注转化与成本，保持观察。`);
+      } else {
+        tips.push(`近 7 天新增基本持平（${growth >= 0 ? "+" : ""}${growth.toFixed(0)}%）——维持常规运营即可。`);
+      }
+
+      if (paidPct < 12) {
+        tips.push(`付费占比仅 ${paidPct.toFixed(1)}%，免费盘子大——活动应偏向「促转化」而非只拉注册。`);
+      } else {
+        tips.push(`付费占比 ${paidPct.toFixed(1)}%，结构相对健康——可关注续费与高价值用户。`);
+      }
+
+      if (costRatio >= state.th.costPct) {
+        tips.push(`今日模型成本约占收入 ${costRatio.toFixed(0)}%（阈值 ${state.th.costPct}%）——需要复盘定价或调整路由成本。`);
+      } else {
+        tips.push(`今日模型成本/收入约 ${costRatio.toFixed(0)}%，成本可控。`);
+      }
+
+      if (state.cpu >= state.th.cpu || state.mem >= 80) {
+        tips.push(`云资源 CPU ${state.cpu}% / 内存 ${state.mem}%，接近阈值——若用户与调用同步上行，应准备扩容评估。`);
+      }
+
+      $("advice-text").innerHTML = tips.map((t) => `· ${t}`).join("<br/>");
     }
 
     function renderOverview() {
-      const paidPct = (state.paidUsers / state.totalUsers * 100).toFixed(1);
-      const freePct = (100 - Number(paidPct)).toFixed(1);
-      const growth = ((state.new7 - state.new7Prev) / state.new7Prev * 100).toFixed(0);
-      const arpu = (state.revenueToday / Math.max(1, state.dau)).toFixed(2);
-
       $("m-users").textContent = fmt(state.totalUsers);
-      $("m-users-tag").textContent = `付费占比 ${paidPct}%`;
-      $("m-new").innerHTML = `${fmt(rangeNew(state.rangeDays))}<small>人</small>`;
-      $("m-range-label").textContent = state.rangeDays === 1 ? "今日" : `近 ${state.rangeDays} 天`;
-      $("m-new-delta").textContent = `${Number(growth) >= 0 ? "+" : ""}${growth}%`;
-      $("m-new-tag").className = "tag " + (Number(growth) < -10 ? "bad" : Number(growth) < 0 ? "warn" : "ok");
-      $("m-new-tag").textContent = Number(growth) < -10 ? "明显下滑" : Number(growth) < 0 ? "略降" : "增长";
       $("m-paid").innerHTML = `${fmt(state.paidUsers)}<small>人</small>`;
-      $("m-free-tag").textContent = `免费 ${freePct}%`;
+      $("m-free").innerHTML = `${fmt(state.freeUsers)}<small>人</small>`;
       $("m-cost").innerHTML = `${state.costToday.toFixed(1)}<small>元</small>`;
-      $("m-arpu").textContent = `ARPU ¥${arpu}`;
-      $("asof1").textContent = `as_of ${nowStr()}`;
       $("clock").textContent = nowStr();
 
-      // spark
-      const maxR = Math.max(...reg14);
-      $("spark-reg").innerHTML = reg14.map((v) => {
-        const h = Math.max(8, Math.round(v / maxR * 48));
-        return `<i class="${v < state.th.reg ? "hot" : ""}" style="height:${h}px" title="${v}"></i>`;
-      }).join("");
-      const last3 = reg14.slice(-3);
-      const down = last3[2] < last3[0];
-      $("spark-hint").className = "tag " + (down ? "warn" : "ok");
-      $("spark-hint").textContent = down ? "近期走低 → 考虑促销" : "增长尚可";
+      const d = state.rangeDays || 7;
+      if ($("m-new") && !$("time-panel").classList.contains("open")) {
+        $("m-new").innerHTML = `${fmt(sumRange(d))}<small>人</small>`;
+      }
 
-      // health
-      $("h-api").textContent = `cpu ${state.cpu}%`;
-      $("h-gw").textContent = `调用 ${fmt(upstream.reduce((s, u) => s + u.calls, 0))}`;
-      $("h-gw-tag").className = "tag ok";
-      $("h-gw-tag").textContent = "路由正常";
-      $("h-ecs").textContent = `CPU ${state.cpu}% / MEM ${state.mem}%`;
-      $("h-ecs-tag").className = "tag " + (state.cpu >= state.th.cpu || state.mem >= 80 ? "warn" : "ok");
-      $("h-ecs-tag").textContent = state.cpu >= state.th.cpu ? "关注扩容" : "ok";
-      $("h-err").textContent = `${state.errRate.toFixed(2)}%`;
-      $("h-err-tag").className = "tag " + (state.errRate > 1 ? "bad" : "ok");
+      $("h-api-st").className = "tag ok";
+      $("h-api-st").textContent = "up";
+      $("h-api-p").textContent = `延迟 ${state.apiLatency}ms · 今日调用 ${fmt(state.apiCalls)}`;
 
-      // insights
-      const insights = [];
-      if (state.new7 < state.new7Prev) {
-        insights.push({
-          cls: "warn", icon: "促", title: "新增注册较上周期下降",
-          text: `近7天 ${state.new7} vs 上周期 ${state.new7Prev}。用户在变少的信号——可评估促销/拉新活动，而不是先扩容。`,
-        });
-      }
-      if (state.cpu >= state.th.cpu || state.mem >= 80) {
-        insights.push({
-          cls: "warn", icon: "容", title: "云资源接近阈值",
-          text: `CPU ${state.cpu}% / 内存 ${state.mem}%，阈值 CPU ${state.th.cpu}%。用户或调用上行时优先评估扩容。`,
-        });
-      }
-      const costRatio = state.costToday / Math.max(1, state.revenueToday) * 100;
-      if (costRatio >= state.th.costPct) {
-        insights.push({
-          cls: "bad", icon: "价", title: "模型成本占收入偏高",
-          text: `今日成本/收入约 ${costRatio.toFixed(0)}%（阈值 ${state.th.costPct}%）。定价或路由成本需要复盘。`,
-        });
-      }
-      const freePctN = state.freeUsers / state.totalUsers * 100;
-      insights.push({
-        cls: "", icon: "客", title: `免费用户占比 ${freePctN.toFixed(1)}%`,
-        text: freePctN > 80
-          ? "免费盘子很大：转化是主要矛盾，活动应偏向促付费而不是纯拉新。"
-          : "付费结构相对健康，可关注续费与高价值用户维护。",
-      });
-      $("insight-list").innerHTML = insights.map((i) => `
-        <div class="insight ${i.cls}">
-          <div class="icon">${i.icon}</div>
-          <div><h4>${i.title}</h4><p>${i.text}</p></div>
-          <span class="tag ${i.cls || "green"}">insight</span>
-        </div>`).join("");
+      $("h-gw-st").className = "tag " + (state.gwErr > 1 ? "warn" : "ok");
+      $("h-gw-st").textContent = state.gwErr > 1 ? "degraded" : "ok";
+      $("h-gw-p").textContent = `上游调用 ${fmt(state.gwCalls)} · 错误 ${state.gwErr.toFixed(2)}%`;
+
+      const ecsWarn = state.cpu >= state.th.cpu || state.mem >= 80;
+      $("h-ecs-st").className = "tag " + (ecsWarn ? "warn" : "ok");
+      $("h-ecs-st").textContent = ecsWarn ? "watch" : "ok";
+      $("h-ecs-p").textContent = `CPU ${state.cpu}% · 内存 ${state.mem}%`;
+
+      $("h-err-st").className = "tag " + (state.errRate > 1 ? "bad" : state.errRate > 0.6 ? "warn" : "ok");
+      $("h-err-st").textContent = state.errRate > 1 ? "high" : state.errRate > 0.6 ? "watch" : "ok";
+      $("h-err-p").textContent = `错误率 ${state.errRate.toFixed(2)}% · 阈值 1%`;
+
+      buildAdvice();
+    }
+
+    /* ---------- 其它页渲染（保持可用） ---------- */
+    function rangeNew(days) {
+      if (days === 3) return sumRange(3);
+      if (days === 7) return sumRange(7);
+      if (days === 14) return sumRange(14);
+      if (days === 28) return sumRange(28);
+      if (days === 90) return sumRange(90);
+      return Math.round(sumRange(7) / 7);
     }
 
     function renderUsers() {
-      const days = state.rangeDays;
-      const neu = rangeNew(days);
-      const rate = days === 1 ? 4.2 : days === 7 ? 3.8 : days === 30 ? 4.5 : 5.1;
-      const paidNew = Math.round(neu * rate / 100);
+      const days = Number(state.rangeDays) === 90 || Number(state.rangeDays) === 14 || Number(state.rangeDays) === 28
+        ? Number(state.rangeDays) : 7;
+      const neu = rangeNew(days === 1 ? 7 : days) || rangeNew(7);
+      const rate = 3.8;
       $("u-new").textContent = fmt(neu);
-      $("u-paid").textContent = fmt(paidNew);
+      $("u-paid").textContent = fmt(Math.round(neu * rate / 100));
       $("u-paid-rate").textContent = rate + "%";
-      $("u-dau").textContent = fmt(Math.round(state.dau * (days === 1 ? 1 : Math.sqrt(days) * 0.8)));
+      $("u-dau").textContent = fmt(state.dau);
       $("u-churn").textContent = fmt(Math.round(neu * 0.18));
 
       $("plan-list").innerHTML = plans.map((p) => {
@@ -838,10 +1050,10 @@
 
       const funnel = [
         { name: "访问/曝光", v: 42000 },
-        { name: "注册", v: 12846 },
+        { name: "注册", v: state.totalUsers },
         { name: "激活（7日内有调用）", v: 7200 },
         { name: "进入付费页", v: 2400 },
-        { name: "付费成功", v: 1862 },
+        { name: "付费成功", v: state.paidUsers },
       ];
       const top = funnel[0].v;
       $("funnel-list").innerHTML = funnel.map((f) => {
@@ -857,100 +1069,63 @@
       }).join("");
 
       $("user-tbody").innerHTML = usersSample.map((u) => `
-        <tr>
-          <td>${u.id}</td><td>${u.reg}</td>
-          <td><span class="tag ${u.st === "付费" ? "ok" : u.st === "沉默" ? "warn" : ""}">${u.st}</span></td>
-          <td>${u.plan}</td><td>${u.calls}</td><td>${u.rev}</td>
-        </tr>`).join("");
+        <tr><td>${u.id}</td><td>${u.reg}</td>
+        <td><span class="tag ${u.st === "付费" ? "ok" : u.st === "沉默" ? "warn" : ""}">${u.st}</span></td>
+        <td>${u.plan}</td><td>${u.calls}</td><td>${u.rev}</td></tr>`).join("");
     }
 
     function renderPortrait() {
-      const segs = {
-        segActive: [
-          { n: "高活跃", v: 980, t: "ok", d: "7日内 ≥5 次调用" },
-          { n: "中活跃", v: 2100, t: "green", d: "7日内 1–4 次" },
-          { n: "沉默", v: 4200, t: "warn", d: "14 日无调用" },
-          { n: "流失风险", v: 860, t: "bad", d: "付费将到期且低活" },
-        ],
-        segUsage: [
-          { n: "轻度", v: 6400, t: "", d: "token 低于 P33" },
-          { n: "标准", v: 4100, t: "green", d: "P33–P80" },
-          { n: "重度", v: 2346, t: "warn", d: "高于 P80，成本敏感" },
-        ],
-        segPay: [
-          { n: "免费", v: 10984, t: "", d: "未付费" },
-          { n: "低价", v: 640, t: "green", d: "体验包" },
-          { n: "标准", v: 820, t: "ok", d: "标准版" },
-          { n: "高价值", v: 402, t: "ok", d: "专业/团队" },
-        ],
-      };
-      const render = (id, arr) => {
-        $(id).innerHTML = arr.map((s) => `
-          <div class="item c3">
-            <div class="name">${s.n}<span>${s.d}</span></div>
-            <div class="sub">${fmt(s.v)}</div>
-            <span class="tag ${s.t}">seg</span>
-          </div>`).join("");
-      };
-      render("seg-active", segs.segActive);
-      render("seg-usage", segs.segUsage);
-      render("seg-pay", segs.segPay);
-
-      $("portrait-insight").innerHTML = [
-        { t: "沉默用户多", d: "可做召回优惠券/功能提醒，而不是加服务器。", lv: "warn" },
-        { t: "重度用户成本高", d: "检查是否被免费策略滥用；评估限流与套餐设计。", lv: "warn" },
-        { t: "高价值用户流失风险", d: "优先人工续费关怀，客单价高，召回 ROI 通常更好。", lv: "ok" },
-        { t: "免费占比过高", d: "活动目标设为「促转化」而非单纯拉注册。", lv: "ok" },
-      ].map((i) => `
-        <div class="item c3">
-          <div class="name">${i.t}<span>${i.d}</span></div>
-          <div class="sub">portrait</div>
-          <span class="tag ${i.lv}">insight</span>
-        </div>`).join("");
+      const map = (arr) => arr.map((s) => `
+        <div class="item c3"><div class="name">${s.n}<span>${s.d}</span></div>
+        <div class="sub">${fmt(s.v)}</div><span class="tag ${s.t}">seg</span></div>`).join("");
+      $("seg-active").innerHTML = map([
+        { n: "高活跃", v: 980, t: "ok", d: "7日内 ≥5 次调用" },
+        { n: "中活跃", v: 2100, t: "green", d: "7日内 1–4 次" },
+        { n: "沉默", v: 4200, t: "warn", d: "14 日无调用" },
+        { n: "流失风险", v: 860, t: "bad", d: "付费将到期且低活" },
+      ]);
+      $("seg-usage").innerHTML = map([
+        { n: "轻度", v: 6400, t: "", d: "token 低于 P33" },
+        { n: "标准", v: 4100, t: "green", d: "P33–P80" },
+        { n: "重度", v: 2346, t: "warn", d: "高于 P80" },
+      ]);
+      $("seg-pay").innerHTML = map([
+        { n: "免费", v: 10984, t: "", d: "未付费" },
+        { n: "低价", v: 640, t: "green", d: "体验包" },
+        { n: "标准", v: 820, t: "ok", d: "标准版" },
+        { n: "高价值", v: 402, t: "ok", d: "专业/团队" },
+      ]);
+      $("portrait-insight").innerHTML = map([
+        { n: "沉默用户多", v: 4200, t: "warn", d: "可做召回优惠，而不是加服务器" },
+        { n: "重度用户成本高", v: 2346, t: "warn", d: "检查限流与套餐设计" },
+        { n: "高价值流失风险", v: 402, t: "ok", d: "优先人工续费关怀" },
+      ]);
     }
 
     function renderRouting() {
       $("up-tbody").innerHTML = upstream.map((u) => `
-        <tr>
-          <td>${u.name}</td>
-          <td>${fmt(u.calls)}</td>
-          <td>${u.ok}%</td>
-          <td>${u.p95} ms</td>
-          <td>${u.cost.toFixed(1)}</td>
-          <td><span class="tag ${u.st}">${u.st === "ok" ? "normal" : "degraded"}</span></td>
-        </tr>`).join("");
-
+        <tr><td>${u.name}</td><td>${fmt(u.calls)}</td><td>${u.ok}%</td>
+        <td>${u.p95} ms</td><td>${u.cost.toFixed(1)}</td>
+        <td><span class="tag ${u.st}">${u.st === "ok" ? "normal" : "degraded"}</span></td></tr>`).join("");
       $("switch-list").innerHTML = switches.map((s) => `
         <div class="item c4">
           <div class="name">${s.from} → ${s.to}<span>${s.why}</span></div>
-          <div class="sub">${s.t}</div>
-          <div class="sub">${s.who}</div>
+          <div class="sub">${s.t}</div><div class="sub">${s.who}</div>
           <span class="tag ${s.who === "system" ? "warn" : "green"}">${s.who}</span>
         </div>`).join("");
-
-      $("v-w1").textContent = state.weights.w1 + "%";
-      $("v-w2").textContent = state.weights.w2 + "%";
-      $("v-w3").textContent = state.weights.w3 + "%";
     }
 
     function renderCalls(filter) {
       const f = filter || "all";
-      const rows = calls.filter((c) => {
-        if (f === "paid") return c.pay === "paid";
-        if (f === "free") return c.pay === "free";
-        if (f === "err") return c.st === "err";
-        return true;
-      });
+      const rows = calls.filter((c) =>
+        f === "all" || (f === "paid" && c.pay === "paid") ||
+        (f === "free" && c.pay === "free") || (f === "err" && c.st === "err"));
       $("call-tbody").innerHTML = rows.map((c) => `
-        <tr>
-          <td>${c.t}</td>
-          <td>${c.uid}<br/><span class="tag ${c.pay === "paid" ? "ok" : ""}">${c.pay}</span></td>
-          <td>${c.model}</td>
-          <td>${fmt(c.tok)}</td>
-          <td>${c.ms}ms</td>
-          <td>¥${c.cost.toFixed(2)}</td>
-          <td><span class="tag ${c.st === "ok" ? "ok" : "bad"}">${c.st}</span></td>
-        </tr>`).join("");
+        <tr><td>${c.t}</td>
+        <td>${c.uid}<br/><span class="tag ${c.pay === "paid" ? "ok" : ""}">${c.pay}</span></td>
+        <td>${c.model}</td><td>${fmt(c.tok)}</td><td>${c.ms}ms</td>
+        <td>¥${c.cost.toFixed(2)}</td>
+        <td><span class="tag ${c.st === "ok" ? "ok" : "bad"}">${c.st}</span></td></tr>`).join("");
     }
 
     function renderCloud() {
@@ -958,126 +1133,55 @@
         const lv = e.cpu >= state.th.cpu || e.mem >= 80 ? "warn" : "ok";
         return `<div class="item c5">
           <div class="name">${e.name}<span>${e.role} · ${e.note}</span></div>
-          <div class="sub">CPU ${e.cpu}%</div>
-          <div class="sub">MEM ${e.mem}%</div>
+          <div class="sub">CPU ${e.cpu}%</div><div class="sub">MEM ${e.mem}%</div>
           <div class="sub">Disk ${e.disk}%</div>
           <span class="tag ${lv}">${lv === "ok" ? "healthy" : "watch"}</span>
         </div>`;
       }).join("");
-
-      const avgCpu = Math.round(ecs.reduce((s, e) => s + e.cpu, 0) / ecs.length);
-      const avgMem = Math.round(ecs.reduce((s, e) => s + e.mem, 0) / ecs.length);
-      state.cpu = avgCpu; state.mem = avgMem;
-
-      $("m-cpu").innerHTML = `${avgCpu}<small>%</small>`;
-      $("m-cpu-bar").style.width = avgCpu + "%";
-      $("m-cpu-bar").className = avgCpu >= state.th.cpu ? "warnbg" : "";
-      $("m-mem").innerHTML = `${avgMem}<small>%</small>`;
-      $("m-mem-bar").style.width = avgMem + "%";
-      $("m-mem-bar").className = avgMem >= 80 ? "warnbg" : "";
-      $("m-net").innerHTML = `${state.bandwidth}<small>Mbps</small>`;
-      $("m-disk").textContent = `磁盘 ${state.diskPct}%`;
-
+      state.cpu = Math.round(ecs.reduce((s, e) => s + e.cpu, 0) / ecs.length);
+      state.mem = Math.round(ecs.reduce((s, e) => s + e.mem, 0) / ecs.length);
+      $("m-cpu").innerHTML = `${state.cpu}<small>%</small>`;
+      $("m-cpu-bar").style.width = state.cpu + "%";
+      $("m-cpu-bar").className = state.cpu >= state.th.cpu ? "warnbg" : "";
+      $("m-mem").innerHTML = `${state.mem}<small>%</small>`;
+      $("m-mem-bar").style.width = state.mem + "%";
+      $("m-mem-bar").className = state.mem >= 80 ? "warnbg" : "";
+      $("m-net").innerHTML = `148<small>Mbps</small>`;
+      $("m-disk").textContent = "磁盘 44%";
       const scale = [];
-      if (avgCpu >= state.th.cpu) scale.push({ n: "CPU 建议评估扩容", d: `集群均值 ${avgCpu}% ≥ ${state.th.cpu}%`, lv: "warn" });
-      if (avgMem >= 80) scale.push({ n: "内存吃紧", d: `数据库节点内存偏高（${ecs[2].mem}%）`, lv: "warn" });
-      if (state.new7 < state.new7Prev) scale.push({ n: "用户增长放缓", d: "扩容优先级可降低，先做拉新/转化", lv: "ok" });
-      else scale.push({ n: "用户仍在增长", d: "资源占用与增长同时上行时再扩", lv: "green" });
-      scale.push({ n: "当前策略", d: "单看 CPU 不扩容；「增长 × 资源」双高才建议扩", lv: "green" });
-
+      if (state.cpu >= state.th.cpu) scale.push({ n: "CPU 建议评估扩容", d: `均值 ${state.cpu}%`, t: "warn" });
+      if (state.mem >= 80) scale.push({ n: "内存吃紧", d: "数据库节点偏高", t: "warn" });
+      if (state.new7 < state.new7Prev) scale.push({ n: "用户增长放缓", d: "扩容优先级可降低", t: "ok" });
+      scale.push({ n: "当前策略", d: "增长 × 资源双高才建议扩", t: "green" });
       $("scale-list").innerHTML = scale.map((s) => `
-        <div class="item c3">
-          <div class="name">${s.n}<span>${s.d}</span></div>
-          <div class="sub">scale</div>
-          <span class="tag ${s.lv}">rule</span>
-        </div>`).join("");
+        <div class="item c3"><div class="name">${s.n}<span>${s.d}</span></div>
+        <div class="sub">scale</div><span class="tag ${s.t}">rule</span></div>`).join("");
     }
 
     function renderOps() {
-      const paidPct = state.paidUsers / state.totalUsers * 100;
-      const arpu = state.revenueToday / Math.max(1, state.dau);
-      const costRatio = state.costToday / Math.max(1, state.revenueToday) * 100;
-
+      const paidPct = (state.paidUsers / state.totalUsers) * 100;
+      const costRatio = (state.costToday / Math.max(1, state.revenueToday)) * 100;
+      const growth = ((state.new7 - state.new7Prev) / state.new7Prev) * 100;
       $("money-list").innerHTML = [
-        { n: "今日收入(示意)", d: `¥${state.revenueToday.toFixed(0)}`, t: "ok" },
+        { n: "今日收入", d: `¥${state.revenueToday.toFixed(0)}`, t: "ok" },
         { n: "今日模型成本", d: `¥${state.costToday.toFixed(1)}`, t: "green" },
         { n: "成本/收入", d: `${costRatio.toFixed(1)}%`, t: costRatio >= state.th.costPct ? "bad" : "ok" },
-        { n: "ARPU(日活口径)", d: `¥${arpu.toFixed(2)}`, t: "green" },
-        { n: "付费用户占比", d: `${paidPct.toFixed(1)}%`, t: paidPct < 12 ? "warn" : "ok" },
-      ].map((x) => `
-        <div class="item c3">
-          <div class="name">${x.n}<span>经营指标</span></div>
-          <div class="sub">${x.d}</div>
-          <span class="tag ${x.t}">biz</span>
-        </div>`).join("");
-
-      const growth = (state.new7 - state.new7Prev) / state.new7Prev * 100;
+        { n: "付费占比", d: `${paidPct.toFixed(1)}%`, t: paidPct < 12 ? "warn" : "ok" },
+      ].map((x) => `<div class="item c3"><div class="name">${x.n}<span>${x.d}</span></div>
+        <div class="sub">biz</div><span class="tag ${x.t}">kpi</span></div>`).join("");
       $("promo-list").innerHTML = [
-        { n: "新增注册趋势", d: `${growth >= 0 ? "+" : ""}${growth.toFixed(0)}% vs 上周期`, t: growth < 0 ? "warn" : "ok" },
-        { n: "免费用户占比", d: `${(100 - paidPct).toFixed(1)}%`, t: paidPct < 15 ? "warn" : "ok" },
-        { n: "沉默用户规模", d: "约 4200", t: "warn" },
-        { n: "促销建议", d: growth < 0 ? "评估限时折扣/召回券" : "维持常规运营", t: growth < 0 ? "warn" : "ok" },
-      ].map((x) => `
-        <div class="item c3">
-          <div class="name">${x.n}<span>${x.d}</span></div>
-          <div class="sub">promo</div>
-          <span class="tag ${x.t}">signal</span>
-        </div>`).join("");
-
+        { n: "新增趋势", d: `${growth >= 0 ? "+" : ""}${growth.toFixed(0)}%`, t: growth < 0 ? "warn" : "ok" },
+        { n: "促销建议", d: growth < 0 ? "评估限时折扣/召回" : "维持常规", t: growth < 0 ? "warn" : "ok" },
+      ].map((x) => `<div class="item c3"><div class="name">${x.n}<span>${x.d}</span></div>
+        <div class="sub">promo</div><span class="tag ${x.t}">signal</span></div>`).join("");
       $("scale-signal").innerHTML = [
         { n: "CPU 均值", d: `${state.cpu}% / 阈值 ${state.th.cpu}%`, t: state.cpu >= state.th.cpu ? "warn" : "ok" },
-        { n: "内存均值", d: `${state.mem}%`, t: state.mem >= 80 ? "warn" : "ok" },
-        { n: "上游异常", d: "Backup-API 成功率 96.1%", t: "warn" },
-        { n: "扩容建议", d: state.cpu >= state.th.cpu ? "准备扩容评估" : "暂不扩，持续观察", t: state.cpu >= state.th.cpu ? "warn" : "ok" },
-      ].map((x) => `
-        <div class="item c3">
-          <div class="name">${x.n}<span>${x.d}</span></div>
-          <div class="sub">scale</div>
-          <span class="tag ${x.t}">signal</span>
-        </div>`).join("");
+        { n: "扩容建议", d: state.cpu >= state.th.cpu ? "准备扩容评估" : "暂不扩", t: state.cpu >= state.th.cpu ? "warn" : "ok" },
+      ].map((x) => `<div class="item c3"><div class="name">${x.n}<span>${x.d}</span></div>
+        <div class="sub">scale</div><span class="tag ${x.t}">signal</span></div>`).join("");
     }
 
-    function tick() {
-      // users drift
-      if (Math.random() < 0.35) state.totalUsers += Math.round(Math.random() * 3);
-      if (Math.random() < 0.25) state.new7 += Math.random() < 0.4 ? 0 : 1;
-      if (Math.random() < 0.08) state.paidUsers += Math.random() < 0.7 ? 1 : 0;
-      state.freeUsers = state.totalUsers - state.paidUsers;
-      state.costToday += Math.random() * 0.6;
-      state.revenueToday += Math.random() * 0.3;
-      state.dau = Math.max(2000, state.dau + Math.round((Math.random() - 0.5) * 12));
-      state.errRate = Math.max(0.05, Math.min(3, state.errRate + (Math.random() - 0.5) * 0.05));
-      state.bandwidth = Math.max(40, state.bandwidth + Math.round((Math.random() - 0.5) * 6));
-
-      ecs.forEach((e) => {
-        e.cpu = Math.min(98, Math.max(10, e.cpu + Math.round((Math.random() - 0.5) * 4)));
-        e.mem = Math.min(98, Math.max(15, e.mem + Math.round((Math.random() - 0.5) * 3)));
-      });
-      upstream.forEach((u) => {
-        u.calls += Math.round(Math.random() * 8);
-        u.cost += Math.random() * 0.08;
-      });
-      // push a new call row occasionally
-      if (Math.random() < 0.4) {
-        const models = ["DeepSeek-Chat", "DeepSeek-Reasoner", "Qwen-Max", "Backup-API"];
-        const uid = "U-" + (10000 + Math.floor(Math.random() * 200));
-        calls.unshift({
-          t: nowStr(), uid, pay: Math.random() < 0.35 ? "paid" : "free",
-          model: models[Math.floor(Math.random() * models.length)],
-          tok: Math.round(200 + Math.random() * 8000),
-          ms: Math.round(400 + Math.random() * 2500),
-          cost: Number((Math.random() * 0.3).toFixed(2)),
-          st: Math.random() < 0.06 ? "err" : "ok",
-        });
-        if (calls.length > 30) calls.pop();
-      }
-
-      renderOverview(); renderUsers(); renderCloud(); renderOps();
-      const activeBtn = document.querySelector('[data-logfilter].on');
-      renderCalls(activeBtn ? activeBtn.getAttribute("data-logfilter") : "all");
-    }
-
-    /* nav */
+    /* ---------- 导航 ---------- */
     document.querySelectorAll(".nav-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const page = btn.getAttribute("data-page");
@@ -1085,23 +1189,22 @@
         btn.classList.add("active");
         document.querySelectorAll(".page").forEach((p) => p.classList.remove("show"));
         $("page-" + page).classList.add("show");
-        $("page-title").textContent = titles[page][0];
-        $("page-desc").textContent = titles[page][1];
+        $("page-title").textContent = titles[page] || page;
+        $("time-panel").classList.remove("open");
       });
     });
 
-    /* range filter */
     document.querySelectorAll("#range-filters button").forEach((btn) => {
       btn.addEventListener("click", () => {
         document.querySelectorAll("#range-filters button").forEach((b) => b.classList.remove("on"));
         btn.classList.add("on");
-        state.rangeDays = Number(btn.getAttribute("data-range"));
-        renderOverview(); renderUsers();
-        log(`统计区间切换为 ${state.rangeDays} 天`, "accent");
+        const d = Number(btn.getAttribute("data-range"));
+        if (d === 1) { /* today */ } else if (trendData[d]) state.rangeDays = d;
+        renderUsers();
+        log(`用户情况区间：${btn.textContent}`, "accent");
       });
     });
 
-    /* log filter */
     document.querySelectorAll("[data-logfilter]").forEach((btn) => {
       btn.addEventListener("click", () => {
         document.querySelectorAll("[data-logfilter]").forEach((b) => b.classList.remove("on"));
@@ -1110,61 +1213,52 @@
       });
     });
 
-    /* route weights */
     ["w1", "w2", "w3"].forEach((k) => {
       $("p-" + k).addEventListener("input", () => {
         state.weights[k] = Number($("p-" + k).value);
         $("v-" + k).textContent = state.weights[k] + "%";
       });
     });
-
     $("btn-route").addEventListener("click", () => {
       const { w1, w2, w3 } = state.weights;
-      const sum = w1 + w2 + w3;
-      if (Math.abs(sum - 100) > 1) {
-        $("toast-route").textContent = `权重合计 ${sum}%，应约等于 100%。已记录待修正。`;
-        log(`路由权重合计异常 ${sum}%`, "warn");
+      if (Math.abs(w1 + w2 + w3 - 100) > 1) {
+        $("toast-route").textContent = `权重合计 ${w1 + w2 + w3}%，应约等于 100%`;
+        log("路由权重合计异常", "warn");
         return;
       }
-      const msg = `路由权重已记录：DeepSeek ${w1}% / Qwen ${w2}% / 其他 ${w3}%`;
-      $("toast-route").textContent = msg + ` · ${nowStr()}`;
+      const msg = `路由权重：DeepSeek ${w1}% / Qwen ${w2}% / 其他 ${w3}%`;
       switches.unshift({ t: nowStr().slice(0, 5), who: "operator", from: "当前", to: "手动权重", why: msg });
-      if (switches.length > 8) switches.pop();
       renderRouting();
+      $("toast-route").textContent = msg;
       log(msg, "ok");
     });
-
     $("btn-failover").addEventListener("click", () => {
       state.weights = { w1: 10, w2: 70, w3: 20 };
       $("p-w1").value = 10; $("p-w2").value = 70; $("p-w3").value = 20;
       $("v-w1").textContent = "10%"; $("v-w2").textContent = "70%"; $("v-w3").textContent = "20%";
-      switches.unshift({ t: nowStr().slice(0, 5), who: "system", from: "DeepSeek", to: "Qwen", why: "演示故障切换：上游异常" });
+      switches.unshift({ t: nowStr().slice(0, 5), who: "system", from: "DeepSeek", to: "Qwen", why: "演示故障切换" });
       upstream[0].st = "warn";
-      renderRouting(); renderOverview();
+      renderRouting();
       log("演示：DeepSeek 异常，流量切向 Qwen", "warn");
-      $("toast-route").textContent = "已演示故障切换；正式环境需自动 failover + 告警。";
     });
 
-    /* thresholds */
     function bindTh(inputId, valId, key, fmtFn) {
       const el = $(inputId);
       el.addEventListener("input", () => {
         state.th[key] = Number(el.value);
         $(valId).textContent = fmtFn(el.value);
+        renderOverview();
       });
     }
     bindTh("p-reg", "v-reg", "reg", (v) => v);
     bindTh("p-cpu", "v-cpu", "cpu", (v) => v + "%");
     bindTh("p-costpct", "v-costpct", "costPct", (v) => v + "%");
-
     $("btn-apply").addEventListener("click", () => {
-      const msg = `阈值已记录：新增告警线 ${state.th.reg} / CPU ${state.th.cpu}% / 成本占比 ${state.th.costPct}%`;
+      const msg = `阈值：新增告警 ${state.th.reg} / CPU ${state.th.cpu}% / 成本占比 ${state.th.costPct}%`;
       $("toast-params").textContent = msg;
       log(msg, "accent");
-      renderOverview();
     });
 
-    /* flags */
     document.querySelectorAll(".switch").forEach((sw) => {
       sw.addEventListener("click", () => {
         sw.classList.toggle("on");
@@ -1174,19 +1268,57 @@
         if (flag === "billing_enabled" && !on) {
           if (!confirm("关闭付费入口会影响收入，确定？")) { sw.classList.add("on"); return; }
         }
-        if (flag === "maintenance" && on) {
-          if (!confirm("开启维护模式将只读，确定？")) { sw.classList.remove("on"); return; }
-        }
         state.flags[flag] = on;
-        const msg = `${flag} → ${on ? "ON" : "OFF"}（${label}）`;
-        $("toast-flags").textContent = msg;
-        log(msg, on ? "ok" : "warn");
+        log(`${flag} → ${on ? "ON" : "OFF"}（${label}）`, on ? "ok" : "warn");
       });
     });
 
-    renderOverview(); renderUsers(); renderPortrait(); renderRouting();
-    renderCalls("all"); renderCloud(); renderOps();
-    log("ScholarX 运营后台原型已加载：用户 / 模型路由 / 云资源", "ok");
+    /* ---------- 实时 tick ---------- */
+    function tick() {
+      if (Math.random() < 0.4) state.totalUsers += Math.round(Math.random() * 2);
+      if (Math.random() < 0.12) state.paidUsers += 1;
+      state.freeUsers = state.totalUsers - state.paidUsers;
+      state.costToday += Math.random() * 0.5;
+      state.revenueToday += Math.random() * 0.25;
+      state.apiLatency = Math.max(20, Math.min(200, state.apiLatency + Math.round((Math.random() - 0.5) * 8)));
+      state.apiCalls += Math.round(Math.random() * 5);
+      state.gwCalls += Math.round(Math.random() * 8);
+      state.errRate = Math.max(0.05, Math.min(3, state.errRate + (Math.random() - 0.5) * 0.04));
+      state.gwErr = Math.max(0.05, Math.min(2.5, state.gwErr + (Math.random() - 0.5) * 0.03));
+      ecs.forEach((e) => {
+        e.cpu = Math.min(98, Math.max(10, e.cpu + Math.round((Math.random() - 0.5) * 3)));
+        e.mem = Math.min(98, Math.max(15, e.mem + Math.round((Math.random() - 0.5) * 2)));
+      });
+      upstream.forEach((u) => { u.calls += Math.round(Math.random() * 6); });
+      if (Math.random() < 0.3) {
+        calls.unshift({
+          t: nowStr(), uid: "U-" + (10000 + Math.floor(Math.random() * 200)),
+          pay: Math.random() < 0.35 ? "paid" : "free",
+          model: ["DeepSeek-Chat", "Qwen-Max", "Backup-API"][Math.floor(Math.random() * 3)],
+          tok: Math.round(200 + Math.random() * 6000),
+          ms: Math.round(400 + Math.random() * 2000),
+          cost: Number((Math.random() * 0.25).toFixed(2)),
+          st: Math.random() < 0.05 ? "err" : "ok",
+        });
+        if (calls.length > 25) calls.pop();
+      }
+
+      renderOverview(); renderCloud(); renderOps();
+      const logBtn = document.querySelector("[data-logfilter].on");
+      renderCalls(logBtn ? logBtn.getAttribute("data-logfilter") : "all");
+    }
+
+    /* init */
+    renderAuth();
+    drawLine(7);
+    renderOverview();
+    renderUsers();
+    renderPortrait();
+    renderRouting();
+    renderCalls("all");
+    renderCloud();
+    renderOps();
+    log("运营总览已加载：头像登录 / 三大块 / 四宫格健康", "ok");
     setInterval(tick, 3000);
   </script>
 </body>
