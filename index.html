@@ -69,14 +69,14 @@
 
     .avatar-wrap { position: relative; text-align: center; cursor: pointer; user-select: none; }
     .avatar {
-      width: 44px; height: 44px; border-radius: 50%; margin: 0 auto;
+      width: 52px; height: 52px; border-radius: 50%; margin: 0 auto;
       background: linear-gradient(145deg, var(--green), var(--green-2));
       color: #fff; font-size: 18px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
       border: 2px solid #c5dfd2; box-shadow: var(--shadow);
     }
-    .avatar-name { margin-top: 4px; font-size: 12px; font-weight: 650; color: var(--ink); line-height: 1.2; }
-    .avatar-time { margin-top: 2px; font-size: 10px; color: var(--muted); opacity: .55; line-height: 1.2; }
+    .avatar-name { margin-top: 4px; font-size: 13px; font-weight: 650; color: var(--ink); line-height: 1.2; }
+    .avatar-time { margin-top: 2px; font-size: 11px; color: var(--muted); opacity: .55; line-height: 1.2; }
     .avatar-wrap:hover .avatar { border-color: var(--green-2); }
 
     .modal-mask {
@@ -107,64 +107,76 @@
 
     /* ===== 运营总览：上 2/3 三大块 + 下 1/3 四宫格 ===== */
     .page-overview-layout {
-      display: flex; flex-direction: column; gap: 14px; min-height: calc(100vh - 120px);
+      display: flex; flex-direction: column; gap: 16px; min-height: calc(100vh - 110px);
     }
     .hero-3 {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
-      flex: 2; min-height: 0;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+      flex: 2.2; min-height: 0;
     }
     @media (max-width: 900px) {
       .hero-3 { grid-template-columns: 1fr; flex: none; }
       .health-4 { grid-template-columns: 1fr 1fr !important; }
     }
     .hero-card {
-      background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
-      padding: 20px 18px; box-shadow: var(--shadow);
-      display: flex; flex-direction: column; min-height: 340px;
+      background: var(--surface); border: 2px solid var(--ink); border-radius: 18px;
+      padding: 22px 18px 20px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; min-height: 420px;
     }
     .overview-title {
-      margin: 0 0 4px; font-size: 28px; font-weight: 750; color: var(--green);
-      letter-spacing: .06em;
+      margin: 0 0 10px; font-size: 34px; font-weight: 750; color: var(--ink);
+      letter-spacing: .12em; text-align: center;
     }
-    .hero-card h3 {
-      margin: 0; font-size: 15px; font-weight: 650; color: var(--green);
-      letter-spacing: .02em;
+    /* 流程图「斜角矩形」标题签 */
+    .skew-label {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; max-width: 240px; margin: 0 auto;
+      height: 52px; padding: 0 28px;
+      font-size: 24px; font-weight: 700; color: var(--ink);
+      background: var(--surface); border: 2.5px solid var(--ink);
+      clip-path: polygon(
+        14px 0%, calc(100% - 14px) 0%,
+        100% 14px, 100% calc(100% - 14px),
+        calc(100% - 14px) 100%, 14px 100%,
+        0% calc(100% - 14px), 0% 14px
+      );
     }
+    .hero-card h3 { display: none; }
     .hero-num {
-      margin-top: 6px; font-size: clamp(56px, 7vw, 92px); font-weight: 900;
-      letter-spacing: -0.03em; color: var(--ink); font-variant-numeric: tabular-nums;
-      line-height: 1.05;
+      margin: 36px 0 0; font-size: clamp(72px, 8vw, 104px); font-weight: 900;
+      letter-spacing: -0.04em; color: var(--ink); font-variant-numeric: tabular-nums;
+      line-height: 1.05; text-align: center;
     }
     .hero-num small {
-      font-size: 18px; font-weight: 700; color: var(--muted); margin-left: 8px;
+      font-size: 22px; font-weight: 700; color: var(--muted); margin-left: 8px;
     }
     .hero-sub { margin-top: auto; }
 
     .split-2 {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px;
     }
     .mini-block {
-      background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
-      padding: 12px 10px; text-align: center;
+      background: var(--surface-2); border: 2px solid var(--ink); border-radius: 14px;
+      padding: 14px 10px; text-align: center;
     }
-    .mini-block .lb { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .mini-block .lb { font-size: 16px; color: var(--ink); font-weight: 650; margin-bottom: 6px; }
     .mini-block .num {
-      font-size: 26px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums;
+      font-size: 28px; font-weight: 850; color: var(--ink); font-variant-numeric: tabular-nums;
     }
     .mini-block .num small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 2px; }
 
     .arrow-down {
-      width: 36px; height: 36px; margin: 10px auto 0; border-radius: 50%;
-      border: 1px solid var(--line); background: var(--surface);
+      width: 48px; height: 48px; margin: 14px auto 0; border-radius: 50%;
+      border: 2px solid var(--ink); background: var(--surface);
       display: flex; align-items: center; justify-content: center; cursor: pointer;
-      color: var(--green-2); font-size: 16px; font-weight: 700;
+      color: var(--ink); font-size: 20px; font-weight: 800;
     }
-    .arrow-down:hover { background: var(--green-soft); border-color: var(--green-2); }
+    .arrow-down:hover { background: var(--green-soft); }
 
     .btn-time {
-      display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
-      padding: 8px 14px; border-radius: 999px; border: 1px solid var(--green-2);
-      background: var(--green-soft); color: var(--green); font-size: 13px; font-weight: 650;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; margin-top: 14px;
+      padding: 12px 16px; border-radius: 999px; border: 2px solid var(--ink);
+      background: var(--surface); color: var(--ink); font-size: 18px; font-weight: 750;
       cursor: pointer;
     }
     .btn-time:hover { background: #d7ebe0; }
@@ -191,43 +203,46 @@
 
     .hero-rel { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
-    .ops-advice {
-      margin-top: 12px; padding: 14px 16px; border-radius: 12px;
-      background: var(--green-soft); border: 2px solid var(--green-2);
-      font-size: 13px; line-height: 1.65; color: var(--ink); min-height: 120px;
-    }
-    .ops-advice strong { color: var(--green); font-weight: 700; }
-    .ops-advice .tagline {
-      display: block; margin-bottom: 8px; font-size: 15px; font-weight: 800;
-      color: var(--green); letter-spacing: .08em;
-    }
-
     .panel-rect {
-      margin-top: 12px; border: 1.5px solid var(--line); border-radius: 14px;
-      background: var(--surface-2); min-height: 52px; padding: 10px 12px;
+      margin-top: 14px; border: 2px solid var(--ink); border-radius: 999px;
+      background: var(--surface); min-height: 56px; padding: 12px 20px;
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      text-align: center; line-height: 1.4;
     }
-    .panel-rect.tall { min-height: 72px; }
+    .panel-rect.tall { min-height: 72px; border-radius: 22px; }
+
+    .ops-advice {
+      margin-top: 14px; padding: 16px 18px; border-radius: 22px;
+      background: var(--surface); border: 2.5px solid var(--ink);
+      font-size: 16px; line-height: 1.7; color: var(--ink); min-height: 140px;
+    }
+    .ops-advice .tagline {
+      display: block; margin-bottom: 10px; font-size: 22px; font-weight: 800;
+      color: var(--ink); letter-spacing: .12em; text-align: center;
+    }
 
     .health-row {
-      display: flex; gap: 12px; align-items: stretch; flex: 1; min-height: 210px;
+      display: flex; gap: 14px; align-items: stretch; flex: 1; min-height: 230px;
     }
     .health-vtitle {
       writing-mode: vertical-rl; text-orientation: upright;
-      letter-spacing: .35em; font-size: 14px; font-weight: 750; color: var(--green);
-      padding: 8px 4px; border-right: 2px solid var(--line);
-      display: flex; align-items: center; justify-content: center; min-width: 36px;
+      letter-spacing: .45em; font-size: 18px; font-weight: 750; color: var(--ink);
+      padding: 10px 6px; border-right: 2px solid var(--ink);
+      display: flex; align-items: center; justify-content: center; min-width: 44px;
     }
     .health-4 {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; min-height: 200px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; flex: 1;
+      min-height: 210px; align-content: center;
     }
     .health-box {
-      background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
-      padding: 20px 22px; box-shadow: var(--shadow);
-      display: flex; flex-direction: column; justify-content: center; gap: 10px;
-      min-height: 100px;
+      background: var(--surface); border: 2.5px solid var(--ink); border-radius: 999px;
+      padding: 18px 28px; box-shadow: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; min-height: 88px; text-align: center;
     }
-    .health-box .hname { font-size: 16px; font-weight: 750; }
-    .health-box .hparams { font-size: 13px; }
+    .health-box .hz { width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .health-box .hname { font-size: 22px; font-weight: 750; }
+    .health-box .hparams { font-size: 14px; }
     .health-box .hz {
       display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap;
     }
@@ -395,7 +410,7 @@
     <div class="main">
       <div class="top">
         <div>
-          <h2 id="page-title">运营总览</h2>
+          <h2 id="page-title" style="font-size:22px;letter-spacing:.08em">运营总览</h2>
         </div>
         <div class="top-right">
           <div class="live"><span class="dot"></span>实时 · <span id="clock">--:--:--</span></div>
@@ -415,7 +430,7 @@
             <div class="hero-3">
               <!-- 1 总用户数 -->
               <div class="hero-card">
-                <h3>总用户数</h3>
+                <div class="skew-label">总用户数</div>
                 <div class="hero-num" id="m-users">—</div>
                 <div class="hero-sub">
                   <div class="split-2">
@@ -434,7 +449,7 @@
 
               <!-- 2 新增用户数 -->
               <div class="hero-card">
-                <h3>新增用户数</h3>
+                <div class="skew-label">新增用户数</div>
                 <div class="hero-num" id="m-new">—<small>人</small></div>
                 <div class="hero-sub hero-rel">
                   <button class="btn-time" id="btn-time">时间 ▸</button>
@@ -451,14 +466,14 @@
                       <div class="chart-meta" id="line-meta">近 7 天注册趋势</div>
                     </div>
                   </div>
-                  <div class="panel-rect tall" id="new-hint">近 7 天新增合计 — 人。点「时间」切换周期看趋势。</div>
-                  <div class="panel-rect">注册趋势摘要（点开「时间」可切换 3 / 7 / 14 / 28 天、三个月）</div>
+                  <div class="panel-rect tall" id="new-hint">近 7 天新增合计 — 人</div>
+                  <div class="panel-rect">点「时间」看 3 / 7 / 14 / 28 天、三个月趋势</div>
                 </div>
               </div>
 
               <!-- 3 今日模型成本 -->
               <div class="hero-card">
-                <h3>今日模型成本</h3>
+                <div class="skew-label">今日模型成本</div>
                 <div class="hero-num" id="m-cost">—<small>元</small></div>
                 <div class="hero-sub">
                   <div class="ops-advice" id="ops-advice">
@@ -938,7 +953,7 @@
       `;
       $("line-meta").textContent = `${rangeLabel(d)}注册趋势 · 合计 ${fmt(sumRange(d))} 人 · 点选其它周期可切换`;
       $("m-new").innerHTML = `${fmt(sumRange(d))}<small>人</small>`;
-      $("new-hint").textContent = `${rangeLabel(d)}新增合计 ${fmt(sumRange(d))} 人。点「时间」可切换周期查看趋势。`;
+      $("new-hint").textContent = `${rangeLabel(d)}新增合计 ${fmt(sumRange(d))} 人`;
     }
 
     $("btn-time").addEventListener("click", () => {
