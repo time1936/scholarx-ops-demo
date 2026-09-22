@@ -122,17 +122,21 @@
       padding: 20px 18px; box-shadow: var(--shadow);
       display: flex; flex-direction: column; min-height: 340px;
     }
+    .overview-title {
+      margin: 0 0 4px; font-size: 28px; font-weight: 750; color: var(--green);
+      letter-spacing: .06em;
+    }
     .hero-card h3 {
       margin: 0; font-size: 15px; font-weight: 650; color: var(--green);
       letter-spacing: .02em;
     }
     .hero-num {
-      margin-top: 12px; font-size: clamp(40px, 4.2vw, 56px); font-weight: 800;
-      letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums;
-      line-height: 1.1;
+      margin-top: 6px; font-size: clamp(56px, 7vw, 92px); font-weight: 900;
+      letter-spacing: -0.03em; color: var(--ink); font-variant-numeric: tabular-nums;
+      line-height: 1.05;
     }
     .hero-num small {
-      font-size: 16px; font-weight: 600; color: var(--muted); margin-left: 6px;
+      font-size: 18px; font-weight: 700; color: var(--muted); margin-left: 8px;
     }
     .hero-sub { margin-top: auto; }
 
@@ -145,7 +149,7 @@
     }
     .mini-block .lb { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
     .mini-block .num {
-      font-size: 22px; font-weight: 750; color: var(--ink); font-variant-numeric: tabular-nums;
+      font-size: 26px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums;
     }
     .mini-block .num small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 2px; }
 
@@ -188,24 +192,42 @@
     .hero-rel { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
     .ops-advice {
-      margin-top: 14px; padding: 12px 14px; border-radius: 10px;
-      background: var(--green-soft); border: 1px solid #c5dfd2;
-      font-size: 13px; line-height: 1.65; color: var(--ink);
+      margin-top: 12px; padding: 14px 16px; border-radius: 12px;
+      background: var(--green-soft); border: 2px solid var(--green-2);
+      font-size: 13px; line-height: 1.65; color: var(--ink); min-height: 120px;
     }
     .ops-advice strong { color: var(--green); font-weight: 700; }
     .ops-advice .tagline {
-      display: inline-block; margin-bottom: 6px; font-size: 11px; font-weight: 700;
-      color: var(--green); letter-spacing: .04em;
+      display: block; margin-bottom: 8px; font-size: 15px; font-weight: 800;
+      color: var(--green); letter-spacing: .08em;
     }
 
+    .panel-rect {
+      margin-top: 12px; border: 1.5px solid var(--line); border-radius: 14px;
+      background: var(--surface-2); min-height: 52px; padding: 10px 12px;
+    }
+    .panel-rect.tall { min-height: 72px; }
+
+    .health-row {
+      display: flex; gap: 12px; align-items: stretch; flex: 1; min-height: 210px;
+    }
+    .health-vtitle {
+      writing-mode: vertical-rl; text-orientation: upright;
+      letter-spacing: .35em; font-size: 14px; font-weight: 750; color: var(--green);
+      padding: 8px 4px; border-right: 2px solid var(--line);
+      display: flex; align-items: center; justify-content: center; min-width: 36px;
+    }
     .health-4 {
       display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; min-height: 200px;
     }
     .health-box {
-      background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-      padding: 14px 16px; box-shadow: var(--shadow);
-      display: flex; flex-direction: column; justify-content: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+      padding: 20px 22px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; justify-content: center; gap: 10px;
+      min-height: 100px;
     }
+    .health-box .hname { font-size: 16px; font-weight: 750; }
+    .health-box .hparams { font-size: 13px; }
     .health-box .hz {
       display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap;
     }
@@ -213,7 +235,7 @@
     .health-box .hparams { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
     .health-title {
       grid-column: 1 / -1; font-size: 13px; font-weight: 650; color: var(--green);
-      margin-bottom: -4px;
+      margin-bottom: -4px; display: none;
     }
 
     .tag {
@@ -389,6 +411,7 @@
         <!-- 运营总览：按需求重排，无口径说明 -->
         <section class="page show" id="page-overview">
           <div class="page-overview-layout">
+            <div class="overview-title">运营总览</div>
             <div class="hero-3">
               <!-- 1 总用户数 -->
               <div class="hero-card">
@@ -428,9 +451,8 @@
                       <div class="chart-meta" id="line-meta">近 7 天注册趋势</div>
                     </div>
                   </div>
-                  <div class="ops-advice" id="new-hint" style="margin-top:12px;font-size:12px">
-                    点击「时间」查看各周期注册趋势
-                  </div>
+                  <div class="panel-rect tall" id="new-hint">近 7 天新增合计 — 人。点「时间」切换周期看趋势。</div>
+                  <div class="panel-rect">注册趋势摘要（点开「时间」可切换 3 / 7 / 14 / 28 天、三个月）</div>
                 </div>
               </div>
 
@@ -447,35 +469,37 @@
               </div>
             </div>
 
-            <div class="health-4">
-              <div class="health-title">系统侧健康</div>
-              <div class="health-box">
-                <div class="hz">
-                  <span class="hname">Cloud API</span>
-                  <span class="tag ok" id="h-api-st">up</span>
+            <div class="health-row">
+              <div class="health-vtitle">系统侧健康</div>
+              <div class="health-4">
+                <div class="health-box">
+                  <div class="hz">
+                    <span class="hname">Cloud API</span>
+                    <span class="tag ok" id="h-api-st">up</span>
+                  </div>
+                  <div class="hparams" id="h-api-p">延迟 — · 今日调用 —</div>
                 </div>
-                <div class="hparams" id="h-api-p">延迟 — · 今日调用 —</div>
-              </div>
-              <div class="health-box">
-                <div class="hz">
-                  <span class="hname">模型网关</span>
-                  <span class="tag ok" id="h-gw-st">ok</span>
+                <div class="health-box">
+                  <div class="hz">
+                    <span class="hname">模型网关</span>
+                    <span class="tag ok" id="h-gw-st">ok</span>
+                  </div>
+                  <div class="hparams" id="h-gw-p">上游调用 — · 错误 —</div>
                 </div>
-                <div class="hparams" id="h-gw-p">上游调用 — · 错误 —</div>
-              </div>
-              <div class="health-box">
-                <div class="hz">
-                  <span class="hname">云服务器</span>
-                  <span class="tag ok" id="h-ecs-st">ok</span>
+                <div class="health-box">
+                  <div class="hz">
+                    <span class="hname">云服务器</span>
+                    <span class="tag ok" id="h-ecs-st">ok</span>
+                  </div>
+                  <div class="hparams" id="h-ecs-p">CPU — · 内存 —</div>
                 </div>
-                <div class="hparams" id="h-ecs-p">CPU — · 内存 —</div>
-              </div>
-              <div class="health-box">
-                <div class="hz">
-                  <span class="hname">今日请求错误率</span>
-                  <span class="tag ok" id="h-err-st">ok</span>
+                <div class="health-box">
+                  <div class="hz">
+                    <span class="hname">今日请求错误率</span>
+                    <span class="tag ok" id="h-err-st">ok</span>
+                  </div>
+                  <div class="hparams" id="h-err-p">错误率 — · 阈值 1%</div>
                 </div>
-                <div class="hparams" id="h-err-p">错误率 — · 阈值 1%</div>
               </div>
             </div>
           </div>
@@ -914,7 +938,7 @@
       `;
       $("line-meta").textContent = `${rangeLabel(d)}注册趋势 · 合计 ${fmt(sumRange(d))} 人 · 点选其它周期可切换`;
       $("m-new").innerHTML = `${fmt(sumRange(d))}<small>人</small>`;
-      $("new-hint").textContent = `${rangeLabel(d)}新增合计 ${fmt(sumRange(d))} 人。数据可点击切换周期。`;
+      $("new-hint").textContent = `${rangeLabel(d)}新增合计 ${fmt(sumRange(d))} 人。点「时间」可切换周期查看趋势。`;
     }
 
     $("btn-time").addEventListener("click", () => {
